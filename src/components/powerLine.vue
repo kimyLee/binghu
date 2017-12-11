@@ -1,8 +1,7 @@
 <template>
   <div class="powerline">
-    <button @click="slowPowerDecrease" class="testBtn">click</button>
-    <button @click="decreasePower" class="shotBtn">shot</button>
-    <button @click="switchOption" class="stopBtn">{{totalMeter}}</button>
+    <!-- <button @click="slowPowerDecrease" class="testBtn">click</button> -->
+    <button @click="shot" class="shotBtn">shot</button>
     <svg :width="clientWidth/2" :height="clientWidth/2">
     <circle :cx="clientWidth/4" :cy="clientWidth/2" :r="clientWidth/4 - 20" stroke-width="15" stroke="#ccc" fill="none"></circle>
     <circle :cx="clientWidth/4" :cy="clientWidth/2" :r="clientWidth/4 - 20" stroke-width="15" stroke="#444" fill="none"  :stroke-dasharray="circleDasharray"></circle>
@@ -14,9 +13,9 @@
 <script>
 export default {
   name: 'powerline',
+  props: [],
   data () {
     return {
-      totalMeter: 0,              // 总长度， 临时
       status: 0,                  // 进度条状态， 0：来回变化， 1：衰减， 2：停止
       beforeStatus: 0,            // 暂停之前状态
       clientWidth: 0,             // 屏幕宽度
@@ -63,14 +62,17 @@ export default {
         window.requestAnimationFrame(this.swingPower)
       }
     },
+    shot () {
+      this.status = 1
+      this.$emit('changeStatus', this.status)     // 通知已经发射，改变状态
+      this.decreasePower()
+    },
     // 力度衰减
     decreasePower () {
-      this.status = 1
       clearTimeout(this.decreaseTimer)
       this.progress = this.progress - this.PowerDecreaseStep
-      this.totalMeter = this.progress * this.PowerDecreaseTime + this.totalMeter
-      if (this.progress < 0) {
-        this.gameOver()
+      this.$emit('returnSpeed', this.progress)
+      if (this.progress <= 0) {
         return
       }
       this.decreaseTimer = setTimeout(() => {
@@ -99,13 +101,10 @@ export default {
       this.status = 0
       this.beforeStatus = 0
       this.progress = 0
+      this.$emit('returnSpeed', this.progress)
       this.PowerIncrease = 1
       this.PowerIncreaseSpeed = 1
       this.PowerDecreaseTime = 50
-    },
-    gameOver () {
-      alert('over')
-      this.reset()
       this.init()
     }
   }
@@ -126,7 +125,12 @@ export default {
     .shotBtn {
       position: absolute;
       bottom: 0;
-      left: 30px;
+      left: 85px;
+      background: #444;
+      color: #fff;
+      text-align: center;
+      line-height: 30px;
+      border: none;
     }
     .stopBtn {
       position: absolute;

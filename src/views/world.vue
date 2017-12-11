@@ -1,6 +1,12 @@
 <template>
   <div class="container">
     <div id="stage"></div>
+    <!-- 计分器 -->
+    <div class="score-panel">
+      <span class="score-title">距离终点</span>
+      <br>
+      <span class="score-num">{{score}}</span>
+    </div>
     <power-line ref="powerLine" @returnSpeed="getJourney" @changeStatus="val => {status = val}"></power-line></power-line>
     <option-btn  @click="handleDirect('left')">左刷</option-btn>
     <option-btn @click="handleDirect('right')" side='right'>右刷</option-btn>
@@ -19,11 +25,13 @@ export default {
   },
   data () {
     return {
+      score: 0,           // 距离分数
       binghu: '',         // 冰壶对象
       bgWalk: 0,          // 背景偏移
-      rodeWidth: 200,     // 轨道宽度
+      roadWidth: 200,     // 轨道宽度
       speed: 0,           // 速度力度
       speedFactor: 33,    // 速度计算因子
+      ratio: '',          // 分数计算因子
       status: 0,          // 当前状态， 0 正在选择力度， 1 正在移动，  2， 游戏结束
 
       context: '',        // 上下文
@@ -65,6 +73,7 @@ export default {
       this.drawHero()
       this.context.save()
       this.context.restore()
+      this.score = (Math.abs(-590 + this.bgWalk - this.Height / 3 * 2) / this.ratio).toFixed(2)
       this.judge()                  // 判定是否gameover
     },
 
@@ -72,7 +81,7 @@ export default {
       if (this.status === 1 && this.speed <= 0) {
         this.gameOver()
       }
-      if (Math.abs(this.Width - this.binghu.posx * 2) > this.rodeWidth) {
+      if (Math.abs(this.Width - this.binghu.posx * 2) > this.roadWidth) {
         this.gameOver()
       }
     },
@@ -80,9 +89,8 @@ export default {
     gameOver () {
       console.log('gameOver')
       this.status = 2
-      let score = Math.abs(-590 + this.bgWalk - this.Height / 3 * 2)
-      alert('离终点' + score + '米')
-      this.reStart()
+      alert('离终点' + this.score + '米')
+      // this.reStart()
     },
     reStart () {
       this.binghu.reset()
@@ -111,45 +119,46 @@ export default {
         this.bgWalk = this.speed / this.speedFactor + this.bgWalk
       }
       let ctx = this.context
-      ctx.moveTo(60, -550)
-      ctx.lineTo(60, 550)
+      ctx.moveTo((this.Width - this.roadWidth) / 2 - this.binghu.radius, 120)
+      ctx.lineTo((this.Width - this.roadWidth) / 2 - this.binghu.radius, 550)
       ctx.stroke()
-      ctx.fillText('0', 63, 610 + this.bgWalk)
-      ctx.fillText('2', 63, 562 + this.bgWalk)
-      ctx.fillText('4', 63, 514 + this.bgWalk)
-      ctx.fillText('6', 63, 466 + this.bgWalk)
-      ctx.fillText('8', 63, 418 + this.bgWalk)
+      let numX = (this.Width - this.roadWidth) / 2 - this.binghu.radius + 10
+      ctx.fillText('0', numX, 610 + this.bgWalk)
+      ctx.fillText('2', numX, 562 + this.bgWalk)
+      ctx.fillText('4', numX, 514 + this.bgWalk)
+      ctx.fillText('6', numX, 466 + this.bgWalk)
+      ctx.fillText('8', numX, 418 + this.bgWalk)
 
-      ctx.fillText('10', 63, 370 + this.bgWalk)
-      ctx.fillText('12', 63, 322 + this.bgWalk)
-      ctx.fillText('14', 63, 274 + this.bgWalk)
-      ctx.fillText('16', 63, 226 + this.bgWalk)
-      ctx.fillText('18', 63, 178 + this.bgWalk)
+      ctx.fillText('10', numX, 370 + this.bgWalk)
+      ctx.fillText('12', numX, 322 + this.bgWalk)
+      ctx.fillText('14', numX, 274 + this.bgWalk)
+      ctx.fillText('16', numX, 226 + this.bgWalk)
+      ctx.fillText('18', numX, 178 + this.bgWalk)
 
-      ctx.fillText('20', 63, 130 + this.bgWalk)
-      ctx.fillText('22', 63, 82 + this.bgWalk)
-      ctx.fillText('24', 63, 34 + this.bgWalk)
-      ctx.fillText('26', 63, -14 + this.bgWalk)
-      ctx.fillText('28', 63, -62 + this.bgWalk)
+      ctx.fillText('20', numX, 130 + this.bgWalk)
+      ctx.fillText('22', numX, 82 + this.bgWalk)
+      ctx.fillText('24', numX, 34 + this.bgWalk)
+      ctx.fillText('26', numX, -14 + this.bgWalk)
+      ctx.fillText('28', numX, -62 + this.bgWalk)
 
-      ctx.fillText('30', 63, -110 + this.bgWalk)
-      ctx.fillText('32', 63, -158 + this.bgWalk)
-      ctx.fillText('34', 63, -206 + this.bgWalk)
-      ctx.fillText('36', 63, -254 + this.bgWalk)
-      ctx.fillText('38', 63, -302 + this.bgWalk)
+      ctx.fillText('30', numX, -110 + this.bgWalk)
+      ctx.fillText('32', numX, -158 + this.bgWalk)
+      ctx.fillText('34', numX, -206 + this.bgWalk)
+      ctx.fillText('36', numX, -254 + this.bgWalk)
+      ctx.fillText('38', numX, -302 + this.bgWalk)
 
-      ctx.fillText('40', 63, -350 + this.bgWalk)
-      ctx.fillText('42', 63, -398 + this.bgWalk)
-      ctx.fillText('44', 63, -446 + this.bgWalk)
-      ctx.fillText('46', 63, -494 + this.bgWalk)
-      ctx.fillText('48', 63, -542 + this.bgWalk)
+      ctx.fillText('40', numX, -350 + this.bgWalk)
+      ctx.fillText('42', numX, -398 + this.bgWalk)
+      ctx.fillText('44', numX, -446 + this.bgWalk)
+      ctx.fillText('46', numX, -494 + this.bgWalk)
+      ctx.fillText('48', numX, -542 + this.bgWalk)
 
-      ctx.fillText('50', 63, -590 + this.bgWalk)
-      ctx.fillText('52', 63, -638 + this.bgWalk)
-      ctx.fillText('54', 63, -686 + this.bgWalk)
-      ctx.fillText('56', 63, -734 + this.bgWalk)
-      ctx.fillText('58', 63, -782 + this.bgWalk)
-      ctx.fillText('60', 63, -830 + this.bgWalk)
+      ctx.fillText('50', numX, -590 + this.bgWalk)
+      ctx.fillText('52', numX, -638 + this.bgWalk)
+      ctx.fillText('54', numX, -686 + this.bgWalk)
+      ctx.fillText('56', numX, -734 + this.bgWalk)
+      ctx.fillText('58', numX, -782 + this.bgWalk)
+      ctx.fillText('60', numX, -830 + this.bgWalk)
     }
   },
   mounted () {
@@ -168,6 +177,7 @@ export default {
       // 插入画布
       this.Width = window.innerWidth         // 屏幕宽度
       this.Height = window.innerHeight       // 屏幕高度
+      this.ratio = (590 + this.Height / 3 * 2) / 50
       let str = '<canvas id="canvas" width=' + this.Width + '; height=' + this.Height + '>Sorry! you的浏览器不支持canvas</canvas>'
       document.getElementById('stage').innerHTML = str
       // 角色图片
@@ -189,6 +199,28 @@ export default {
     #stage {
       width: 100%;
       height: 100%;
+    }
+    .score-panel {
+      border: 2px solid #444;
+      min-width: 20%;
+      // min-height: 8rem;
+      position: fixed;
+      left: 0;
+      top: 0;
+      padding: 0.8rem;
+      text-align: center;
+      background: #fff;
+      .score-title {
+        font-size: 1.2rem;
+      }
+      .score-num {
+        display: block;
+        padding: 1rem 0;
+        text-align: center;
+        vertical-align: middle;
+        font-size: 5.6rem;
+        font-weight: bold;
+      }
     }
   }
 </style>

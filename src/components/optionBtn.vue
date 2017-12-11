@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import canvasBtn from '@/lib/canvasBtn'
+import CanvasBtn from '@/lib/canvasBtn'
 export default {
   name: 'btns',
   props: {
@@ -16,7 +16,8 @@ export default {
   },
   mounted () {
     this.$nextTick(() => {
-      canvasBtn.init(this.$el)
+      /* eslint-disable no-unused-vars */
+      let canvasBtn = new CanvasBtn(this.$el)
     })
   },
   data () {
@@ -34,14 +35,16 @@ export default {
     position: fixed;
     bottom: 0;
     width: 20%;
-    height: 4rem;
-    background: #444;
-    color: #fff;
+    height: 3rem;
+    border: 2px solid #444;
+    background: #fff;
+    // background: #444;
+    // color: #fff;
     text-align: center;
-    line-height: 4rem;
+    line-height: 3rem;
     canvas {
       position: absolute;
-      top: 0;
+      bottom: 0;
       left: 0;
     }
 

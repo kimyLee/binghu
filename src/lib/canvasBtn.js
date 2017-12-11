@@ -1,77 +1,71 @@
 /**
  * Created by Administrator on 2015/11/2 0002.
  */
-/* canvas 按钮特效 */
-export default {
+/* canvas 按钮特效  */
+export default class CanvasBtn {
+  constructor (dom) {
+    this.circles = []
+    this.max_radius = ''
+    this.context = ''
+    this.canvas = ''
+    this.init(dom)
+  }
+
   init ($target) {
-    // let $target = document.querySelector(dom)
+    if ($target.nodeType !== 1) {
+      $target = document.querySelector($target)
+    }
     let $canvas = document.createElement('canvas')
+    this.canvas = $canvas
+    this.context = $canvas.getContext('2d')
+
     $canvas.width = $target.offsetWidth
-    $canvas.height = $target.offsetHeight
+    $canvas.height = $target.offsetHeight + 10     // 超出一点好看
+
     $target.appendChild($canvas)
     $target.addEventListener('click', (ele) => {
       let target = ele.target || ele.srcElement
-      console.log(target)
+      if (target.tagName === 'CANVAS') {
+        this.press(target)
+      }
     })
   }
+
+  press ($target) {
+    this.max_radius = $target.offsetWidth
+    let circle = {
+      radius: 0,
+      centerX: $target.offsetWidth / 2,
+      centerY: $target.offsetHeight / 2
+    }
+    this.circles.push(circle)
+    if (this.circles.length <= 1) {
+      this.draw()
+    }
+  }
+
+  draw () {
+    let context = this.context
+    context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+    for (let index = this.circles.length; index--;) {
+      let item = this.circles[index]
+
+      context.beginPath()
+      context.arc(item.centerX, item.centerY, item.radius, 0, 2 * Math.PI, false)
+      context.strokeStyle = `rgba(0, 0, 0, ${(100 - item.radius / 3 * 10) / 100})`
+      context.lineWidth = 1
+      context.stroke()
+
+      item.radius += 1
+      if (item.radius > 30) {
+        this.circles.splice(index, 1)
+      }
+    }
+
+    if (this.circles.length > 0) {
+      window.requestAnimationFrame(() => { this.draw() })
+    } else {
+      context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+    }
+  }
 }
-// $(function () {
-//   window.requestAnimFrame = (function () {
-//       return window.requestAnimationFrame ||
-//           window.webkitRequestAnimationFrame ||
-//           window.mozRequestAnimationFrame ||
-//           function (callback) {
-//               window.setTimeout(callback, 1000 / 60);
-//           };
-//   })();
-//   var canvasBtn = {
-//       canvas: {}
-//       , centerX: 0
-//       , centerY: 0
-//       , color: ''
-//       , containers: $('.btn_canvas')
-//       , context: {}
-//       , element: {}
-//       , radius: 0
-//       , max_radius: 0
-//   };
-//   var init = function () {
-//       canvasBtn.containers.each(function () {
-//           var $this = $(this);
-//           var $canvas = $('<canvas width=' + $this.width() + ' height=' + $this.height() + '></canvas>');
-//           $this.append($canvas);
-//           $this.on("click", "canvas", function (e) {
-//               press(e, this)
-//           });
-
-//       })
-
-//   };
-
-//   function press(event, target) {
-//       var $this = $(target);
-//       canvasBtn.color = $this.parent().data("color");
-//       canvasBtn.context = $this.get(0).getContext("2d");
-//       canvasBtn.radius = 0;
-//       canvasBtn.centerX = event.pageX - $this.offset().left;
-//       canvasBtn.centerY = event.pageY - $this.offset().top;
-//       canvasBtn.context.clearRect(0, 0, $this.width(), $this.height());
-//       canvasBtn.max_radius = $this.width();
-//       console.log(canvasBtn.max_radius);
-//       draw();
-//   }
-
-//   function draw() {
-//       canvasBtn.context.beginPath();
-//       canvasBtn.context.arc(canvasBtn.centerX, canvasBtn.centerY, canvasBtn.radius, 0, 2 * Math.PI, false);
-//       canvasBtn.context.fillStyle = canvasBtn.color;
-//       canvasBtn.context.fill();
-//       canvasBtn.radius += 2;
-//       if (canvasBtn.radius < canvasBtn.max_radius) {
-//           window.requestAnimFrame(draw);
-//       }
-
-//   }
-
-//   init();
-// })

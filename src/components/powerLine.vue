@@ -125,12 +125,18 @@ export default {
     .shotBtn {
       position: absolute;
       bottom: 0;
-      left: 85px;
+      width: 50%;
+      left: 50%;
+      height: 0;
+      outline: none;
+      padding-bottom: 50%;
+      border-radius: 50%;
       background: #444;
       color: #fff;
       text-align: center;
-      line-height: 30px;
+      line-height: 45px;
       border: none;
+      transform: translateY(50%) translateX(-50%) ;
     }
     .stopBtn {
       position: absolute;

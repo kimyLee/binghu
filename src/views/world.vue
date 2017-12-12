@@ -109,8 +109,12 @@ export default {
         }
       }
       this.binghu.posx = this.binghu.posx + this.binghu.horSpeed
+      let follow = this.binghu.getFollowerPos(this.binghu.horSpeed, this.speed / this.speedFactor)
       ctx.beginPath()
       ctx.arc(this.binghu.posx, this.binghu.posy, this.binghu.radius, 0, 2 * Math.PI)
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.arc(follow.x, follow.y, 2, 0, 2 * Math.PI)
       ctx.stroke()
     },
 

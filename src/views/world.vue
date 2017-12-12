@@ -47,17 +47,6 @@ export default {
     this.binghu = new BingHu()
   },
   methods: {
-    // 左右按钮点击事件
-    handleDirect (dir) {
-      this.$refs.powerLine.slowPowerDecrease()
-      this.binghu.horSpeed = dir ? (dir === 'left' ? -0.5 : 0.5) : 0
-    },
-
-     // 获取速度
-    getJourney (val) {
-      this.speed = val
-    },
-
     run () {
       if (this.status === 2) {
         return
@@ -77,29 +66,6 @@ export default {
       this.judge()                  // 判定是否gameover
     },
 
-    judge () {
-      if (this.status === 1 && this.speed <= 0) {
-        this.gameOver()
-      }
-      if (Math.abs(this.Width - this.binghu.posx * 2) > this.roadWidth) {
-        this.gameOver()
-      }
-    },
-
-    gameOver () {
-      console.log('gameOver')
-      this.status = 2
-      alert('离终点' + this.score + '米')
-      // this.reStart()
-    },
-    reStart () {
-      this.binghu.reset()
-      this.status = 0
-      this.bgWalk = 0
-      this.$refs.powerLine.reset()
-      this.run()
-    },
-
     drawHero () {
       let ctx = this.context
       if (!this.binghu.stop) {
@@ -108,14 +74,20 @@ export default {
           this.binghu.stop = true
         }
       }
+      this.binghu.horSpeed = this.binghu.horSpeed + this.binghu.horAccSpeed
+      this.binghu.horSpeed = this.binghu.horSpeed > 0.5 ? 0.5 : (this.binghu.horSpeed < -0.5 ? -0.5 : this.binghu.horSpeed)
       this.binghu.posx = this.binghu.posx + this.binghu.horSpeed
       let follow = this.binghu.getFollowerPos(this.binghu.horSpeed, this.speed / this.speedFactor)
       ctx.beginPath()
       ctx.arc(this.binghu.posx, this.binghu.posy, this.binghu.radius, 0, 2 * Math.PI)
       ctx.stroke()
       ctx.beginPath()
-      ctx.arc(follow.x, follow.y, 2, 0, 2 * Math.PI)
-      ctx.stroke()
+      ctx.moveTo(follow.x, follow.y)
+      ctx.lineTo(follow.x1, follow.y1)
+      ctx.lineTo(follow.x2, follow.y2)
+      ctx.closePath()
+      ctx.fillStyle = '#444'
+      ctx.fill()
     },
 
     drawBg () {
@@ -163,6 +135,43 @@ export default {
       ctx.fillText('56', numX, -734 + this.bgWalk)
       ctx.fillText('58', numX, -782 + this.bgWalk)
       ctx.fillText('60', numX, -830 + this.bgWalk)
+    },
+
+    judge () {
+      if (this.status === 1 && this.speed <= 0) {
+        this.gameOver()
+      }
+      // if (Math.abs(this.Width - this.binghu.posx * 2) > this.roadWidth) {
+      //   this.gameOver()
+      // }
+    },
+
+    gameOver () {
+      this.status = 2
+      alert('离终点' + this.score + '米')
+      this.reStart()
+    },
+    reStart () {
+      this.binghu.reset()
+      this.status = 0
+      this.bgWalk = 0
+      this.$refs.powerLine.reset()
+      this.run()
+    },
+
+    // 左右按钮点击事件
+    handleDirect (dir) {
+      if (this.status !== 1) {
+        return
+      }
+      this.$refs.powerLine.slowPowerDecrease()
+      this.binghu.horAccSpeed = dir ? (dir === 'left' ? -0.05 : 0.05) : 0
+      // this.binghu.horSpeed = dir ? (dir === 'left' ? -0.5 : 0.5) : 0
+    },
+
+     // 获取速度
+    getJourney (val) {
+      this.speed = val
     }
   },
   mounted () {

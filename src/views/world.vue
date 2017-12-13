@@ -17,6 +17,7 @@
 import powerLine from '@/components/powerLine'
 import optionBtn from '@/components/optionBtn'
 import BingHu from '@/class/binghu'
+import Brush from '@/class/Brush'
 export default {
   name: 'world',
   components: {
@@ -27,6 +28,7 @@ export default {
     return {
       score: 0,           // 距离分数
       binghu: '',         // 冰壶对象
+      brush: '',          // 刷子对象
       bgWalk: 0,          // 背景偏移
       roadWidth: 200,     // 轨道宽度
       speed: 0,           // 速度力度
@@ -45,6 +47,7 @@ export default {
   },
   created () {
     this.binghu = new BingHu()
+    this.brush = new Brush()
   },
   methods: {
     run () {
@@ -58,12 +61,23 @@ export default {
     render () {
       this.context.clearRect(this.boxX, this.boxY, this.Width, this.Height)
       this.currentFrame++
+      this.drawBrush()
       this.drawBg()
       this.drawHero()
       this.context.save()
       this.context.restore()
       this.score = (Math.abs(-590 + this.bgWalk - this.Height / 3 * 2) / this.ratio).toFixed(2)
       this.judge()                  // 判定是否gameover
+    },
+
+    drawBrush () {
+      let brush = this.brush
+      brush.updateSelf()
+      if (this.brush.show) {
+        let ctx = this.context
+        ctx.fillStyle = '#444'
+        ctx.fillRect(brush.posX - brush.width, 400, brush.posX, 420)
+      }
     },
 
     drawHero () {
@@ -166,6 +180,7 @@ export default {
       }
       this.$refs.powerLine.slowPowerDecrease()
       this.binghu.horAccSpeed = dir ? (dir === 'left' ? -0.05 : 0.05) : 0
+      this.brush.addCount(dir)
       // this.binghu.horSpeed = dir ? (dir === 'left' ? -0.5 : 0.5) : 0
     },
 

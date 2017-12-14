@@ -22,6 +22,17 @@ export default class CanvasBtn {
     $canvas.width = $target.offsetWidth
     $canvas.height = $target.offsetHeight + 10     // 超出一点好看
 
+    // 消除锯齿
+    if (window.devicePixelRatio) {
+      this.canvas.style.width = $canvas.width + 'px'
+      this.canvas.style.height = $canvas.height + 'px'
+      this.canvas.height = $canvas.height * window.devicePixelRatio
+      this.canvas.width = $canvas.width * window.devicePixelRatio
+      this.context.scale(window.devicePixelRatio, window.devicePixelRatio)
+    }
+
+    
+
     $target.appendChild($canvas)
     $target.addEventListener('click', (ele) => {
       let target = ele.target || ele.srcElement
@@ -53,7 +64,7 @@ export default class CanvasBtn {
       context.beginPath()
       context.arc(item.centerX, item.centerY, item.radius, 0, 2 * Math.PI, false)
       context.strokeStyle = `rgba(0, 0, 0, ${(100 - item.radius / 3 * 10) / 100})`
-      context.lineWidth = 1
+      context.lineWidth = 2
       context.stroke()
 
       item.radius += 1

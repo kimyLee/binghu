@@ -35,13 +35,13 @@ export default {
     position: fixed;
     bottom: 0;
     width: 20%;
-    height: 3rem;
+    height: 4rem;
     border: 2px solid #444;
     background: #fff;
     // background: #444;
     // color: #fff;
     text-align: center;
-    line-height: 3rem;
+    line-height: 4rem;
     canvas {
       position: absolute;
       bottom: 0;

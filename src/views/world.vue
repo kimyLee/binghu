@@ -76,7 +76,7 @@ export default {
       if (this.brush.show) {
         let ctx = this.context
         ctx.fillStyle = '#444'
-        ctx.fillRect(brush.posX - brush.width, 400, brush.posX, 420)
+        ctx.fillRect(brush.posX - brush.width / 2, 300, brush.width, brush.height)
       }
     },
 
@@ -93,9 +93,12 @@ export default {
       this.binghu.posx = this.binghu.posx + this.binghu.horSpeed
       let follow = this.binghu.getFollowerPos(this.binghu.horSpeed, this.speed / this.speedFactor)
       ctx.beginPath()
+      ctx.strokeStyle = '#444'
+      ctx.lineWidth = 10
       ctx.arc(this.binghu.posx, this.binghu.posy, this.binghu.radius, 0, 2 * Math.PI)
       ctx.stroke()
       ctx.beginPath()
+      ctx.lineWidth = 1
       ctx.moveTo(follow.x, follow.y)
       ctx.lineTo(follow.x1, follow.y1)
       ctx.lineTo(follow.x2, follow.y2)
@@ -109,6 +112,8 @@ export default {
         this.bgWalk = this.speed / this.speedFactor + this.bgWalk
       }
       let ctx = this.context
+      ctx.fillStyle = '#ccc'
+      ctx.strokeStyle = '#ccc'
       ctx.moveTo((this.Width - this.roadWidth) / 2 - this.binghu.radius, 120)
       ctx.lineTo((this.Width - this.roadWidth) / 2 - this.binghu.radius, 550)
       ctx.stroke()
@@ -155,9 +160,9 @@ export default {
       if (this.status === 1 && this.speed <= 0) {
         this.gameOver()
       }
-      // if (Math.abs(this.Width - this.binghu.posx * 2) > this.roadWidth) {
-      //   this.gameOver()
-      // }
+      if (Math.abs(this.Width - this.binghu.posx * 2) > this.roadWidth) {
+        this.gameOver()
+      }
     },
 
     gameOver () {
@@ -166,11 +171,12 @@ export default {
       this.reStart()
     },
     reStart () {
+      this.speed = 0
       this.binghu.reset()
       this.status = 0
       this.bgWalk = 0
       this.$refs.powerLine.reset()
-      this.run()
+      // this.run()
     },
 
     // 左右按钮点击事件
@@ -212,6 +218,15 @@ export default {
       // 全局对象
       this.canvas = document.getElementById('canvas')
       this.context = this.canvas.getContext('2d')
+
+      if (window.devicePixelRatio) {
+        this.canvas.style.width = this.Width + 'px'
+        this.canvas.style.height = this.Height + 'px'
+        this.canvas.height = this.Height * window.devicePixelRatio
+        this.canvas.width = this.Width * window.devicePixelRatio
+        this.context.scale(window.devicePixelRatio, window.devicePixelRatio)
+      }
+
       this.run()
     })
   }
@@ -227,10 +242,15 @@ export default {
     #stage {
       width: 100%;
       height: 100%;
+      canvas {
+        width: 100%;
+        height: 100%;
+      }
     }
     .score-panel {
       border: 2px solid #444;
-      min-width: 20%;
+      width: 14rem;
+      // min-width: 20%;
       // min-height: 8rem;
       position: fixed;
       left: 0;

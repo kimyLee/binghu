@@ -31,8 +31,6 @@ export default class CanvasBtn {
       this.context.scale(window.devicePixelRatio, window.devicePixelRatio)
     }
 
-    
-
     $target.appendChild($canvas)
     $target.addEventListener('click', (ele) => {
       let target = ele.target || ele.srcElement

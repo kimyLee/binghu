@@ -1,12 +1,17 @@
 <template>
   <div id="app">
+    <my-dialog></my-dialog>
     <router-view/>
   </div>
 </template>
 
 <script>
+import myDialog from '@/components/dialog'
 export default {
-  name: 'app'
+  name: 'app',
+  components: {
+    myDialog
+  }
 }
 </script>
 

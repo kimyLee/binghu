@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <my-dialog></my-dialog>
     <router-view/>
   </div>
 </template>

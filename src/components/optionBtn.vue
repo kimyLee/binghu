@@ -1,6 +1,6 @@
 <template>
   <div class="option-btn" :class="side" @click="$emit('click')">
-    <slot></slot>
+    <span class="option-btn-text"><slot></slot></span>
   </div>
 </template>
 
@@ -34,12 +34,13 @@ export default {
   .option-btn {
     position: fixed;
     bottom: 0;
-    width: 20%;
-    height: 4rem;
-    border: 2px solid #444;
+    // width: 20%;
+    // height: 4rem;
+    text-align: center;
+    width: 30%;
+    height: 0;
+    padding-bottom: 20%;
     background: #fff;
-    // background: #444;
-    // color: #fff;
     text-align: center;
     line-height: 4rem;
     canvas {
@@ -50,9 +51,28 @@ export default {
 
     &.left {
       left: 0;
+      background: url('/static/images/left_btn.png') no-repeat;
+      background-size: 100%;
     }
     &.right {
       right: 0;
+      background: url('/static/images/right_btn.png') no-repeat;
+      background-size: 100%;
+      .option-btn-text {
+        left: 60%;
+      }
+    }
+    .option-btn-text {
+      color: #fff;
+      position: absolute;
+      display: inline-block;
+      height: 2rem;
+      line-height: 2rem;
+      font-size: 1.4rem;
+      font-weight: bold;
+      transform: translateX(-50%);
+      bottom: 0;
+      left: 40%;
     }
   }
 </style>

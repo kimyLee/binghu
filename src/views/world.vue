@@ -12,8 +12,8 @@
     
     </div>
     <power-line ref="powerLine" @returnSpeed="getJourney" @changeStatus="val => {status = val}"></power-line></power-line>
-    <option-btn  @click="handleDirect('left')">左刷</option-btn>
-    <option-btn @click="handleDirect('right')" side='right'>右刷</option-btn>
+    <option-btn  @click="handleDirect('left')">左刷冰</option-btn>
+    <option-btn @click="handleDirect('right')" side='right'>右刷冰</option-btn>
   </div>
 </template>
 

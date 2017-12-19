@@ -3,9 +3,13 @@
     <div id="stage"></div>
     <!-- 计分器 -->
     <div class="score-panel">
-      <span class="score-title">距离终点</span>
-      <br>
-      <span class="score-num">{{score}}</span>
+      <div class="score-box">
+        <div class="box-item" style="border-bottom: 1px solid #ccc;">离靶心距离</div>
+        <div class="box-item num">{{score}}m</div> 
+      </div>
+      <!-- 排行榜 -->
+      <div class="ranking">排行榜</div>
+    
     </div>
     <power-line ref="powerLine" @returnSpeed="getJourney" @changeStatus="val => {status = val}"></power-line></power-line>
     <option-btn  @click="handleDirect('left')">左刷</option-btn>
@@ -66,7 +70,7 @@ export default {
       this.drawHero()
       this.context.save()
       this.context.restore()
-      this.score = (Math.abs(-590 + this.bgWalk - this.Height / 3 * 2) / this.ratio).toFixed(2)
+      this.score = (Math.abs(-590 + this.bgWalk - this.Height / 3 * 2) / this.ratio).toFixed(1)
       this.judge()                  // 判定是否gameover
     },
 
@@ -248,27 +252,45 @@ export default {
       }
     }
     .score-panel {
-      border: 2px solid #444;
-      width: 14rem;
-      // min-width: 20%;
-      // min-height: 8rem;
+      width: 8.2rem;
+      height: 13.3rem;
+      padding: 0.5rem;
+      background: rgba(255, 255, 255, .67);
       position: fixed;
       left: 0;
       top: 0;
-      padding: 0.8rem;
       text-align: center;
-      background: #fff;
-      .score-title {
-        font-size: 1.2rem;
+      .score-box {
+        border: 5px solid #a11c20;
+        border-radius: 5px;
+        width: 100%;
+        box-sizing: border-box;
+        height: 8.25rem;
+        background: #fff;
+        .box-item {
+          box-sizing: border-box;
+          height: 50%;
+          line-height: 4.1rem;
+          font-size: 1.6rem;
+          font-weight: bold;
+          &.num {
+            font-size: 2rem;
+          }
+        }
+        
       }
-      .score-num {
-        display: block;
-        padding: 1rem 0;
-        text-align: center;
-        vertical-align: middle;
-        font-size: 5.6rem;
-        font-weight: bold;
-      }
+      .ranking {
+          width: 8.2rem;
+          height: 3.3rem;
+          text-align: center;
+          color: #fff;
+          background: #e03b40;
+          border-radius: 5px;
+          margin-top: 4px;
+          font-size: 2.2rem;
+          line-height: 3.3rem;
+          box-shadow: 0px 2px 0px 2px #a11c20;
+        }
     }
   }
 </style>

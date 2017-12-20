@@ -2,14 +2,14 @@
   <div class="start-page">
     <!-- logo 和 游戏规则 -->
     <div class="logo">
-      <img src="/static/images/logo.png" />
+      <img :src="'/static/images/logo.png' | autoPre" />
     </div>
     <div class="game-rule" @click="seeRule=true">
-      <img src="/static/images/rule.png" />
+      <img :src="'/static/images/rule.png' | autoPre" />
     </div>
 
     <div class="bg-box">
-      <img class="img-bg" src="/static/images/homeBg.png" />
+      <img class="img-bg" :src="'/static/images/homeBg.png' | autoPre" />
     </div>
     <!-- 开始游戏按钮 -->
     <div class="btn-field">
@@ -23,11 +23,20 @@
 
     <!-- 游戏规则说明 -->
     <my-dialog :open="seeRule" @closeDialog="seeRule = false">
-      这是游戏规则说明
+      这是游戏规则说明<br>
+      这是游戏规则说明<br>
+      这是游戏规则说明<br>
+      这是游戏规则说明<br>
+    
     </my-dialog>
     <!-- 查看游戏声明 -->
     <my-dialog :open="seeProtocol" @closeDialog="seeProtocol = false">
-      这是游戏声明
+      这是游戏声明<br>
+      这是游戏声明<br>
+      这是游戏声明<br>
+      这是游戏声明<br>
+      这是游戏声明<br>
+ 
     </my-dialog>
   </div>
 </template>
@@ -91,7 +100,7 @@ export default {
         display: inline-block;
         width: 23.5rem;
         height: 7rem;
-        background: url(/static/images/btn.png) no-repeat;
+        background: url('../assets/btn.png') no-repeat;
         background-size: 100%;
       }
     }

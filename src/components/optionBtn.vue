@@ -51,12 +51,12 @@ export default {
 
     &.left {
       left: 0;
-      background: url('/static/images/left_btn.png') no-repeat;
+      background: url('~@/assets/left_btn.png') no-repeat;
       background-size: 100%;
     }
     &.right {
       right: 0;
-      background: url('/static/images/right_btn.png') no-repeat;
+      background: url('~@/assets/right_btn.png') no-repeat;
       background-size: 100%;
       .option-btn-text {
         left: 60%;

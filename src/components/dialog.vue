@@ -68,7 +68,7 @@ export default {
         width: 67%;
         // margin-top: 11.2rem;
         // margin-top: calc(40vh);
-        top: 0.3rem;
+        top: 0.4rem;
         background: #fff;
         &:before {
           content: "";

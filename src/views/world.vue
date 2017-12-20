@@ -12,8 +12,8 @@
     
     </div>
     <power-line ref="powerLine" @returnSpeed="getJourney" @changeStatus="val => {status = val}"></power-line></power-line>
-    <option-btn  @click="handleDirect('left')">左刷冰</option-btn>
-    <option-btn @click="handleDirect('right')" side='right'>右刷冰</option-btn>
+    <option-btn  @click="handleDirect('left')">左扫冰</option-btn>
+    <option-btn @click="handleDirect('right')" side='right'>右扫冰</option-btn>
   </div>
 </template>
 
@@ -46,12 +46,15 @@ export default {
       boxY: 0,            // 画布起点纵坐标
       Width: '',          // 画布宽度
       Height: '',         // 画布高度
-      currentFrame: 0     // 当前帧
+      currentFrame: 0,     // 当前帧
+      image: ''            // 冰壶贴图对象
     }
   },
   created () {
     this.binghu = new BingHu()
     this.brush = new Brush()
+    this.image = new Image()
+    this.image.src = '/static/images/binghu.png'
   },
   methods: {
     run () {
@@ -86,6 +89,7 @@ export default {
 
     drawHero () {
       let ctx = this.context
+      let binghu = this.binghu
       if (!this.binghu.stop) {
         this.binghu.posy = -this.speed / this.speedFactor + this.binghu.posy
         if (this.binghu.posy < this.Height / 3 * 2) {
@@ -96,13 +100,16 @@ export default {
       this.binghu.horSpeed = this.binghu.horSpeed > 0.5 ? 0.5 : (this.binghu.horSpeed < -0.5 ? -0.5 : this.binghu.horSpeed)
       this.binghu.posx = this.binghu.posx + this.binghu.horSpeed
       let follow = this.binghu.getFollowerPos(this.binghu.horSpeed, this.speed / this.speedFactor)
+      // 开始剪切x ,开始剪切y,被剪切宽度,被剪切高度,画布上x坐标,画布上y坐标,图像的宽度,图像的高度
+      ctx.drawImage(this.image, 0, 0, 160, 160, binghu.posx - binghu.R, binghu.posy - binghu.R, binghu.R * 2, binghu.R * 2)
+      // ctx.beginPath()
+      // ctx.strokeStyle = '#444'
+      // ctx.lineWidth = 10
+      // ctx.arc(this.binghu.posx, this.binghu.posy, this.binghu.radius, 0, 2 * Math.PI)
+      // ctx.stroke()
+      // ctx.beginPath()
+      // ctx.lineWidth = 1
       ctx.beginPath()
-      ctx.strokeStyle = '#444'
-      ctx.lineWidth = 10
-      ctx.arc(this.binghu.posx, this.binghu.posy, this.binghu.radius, 0, 2 * Math.PI)
-      ctx.stroke()
-      ctx.beginPath()
-      ctx.lineWidth = 1
       ctx.moveTo(follow.x, follow.y)
       ctx.lineTo(follow.x1, follow.y1)
       ctx.lineTo(follow.x2, follow.y2)

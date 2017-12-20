@@ -3,7 +3,7 @@ export default class BingHu {
     this.radius = 50
     this.R = 70
     this.posx = window.innerWidth / 2
-    this.posy = window.innerHeight - window.innerWidth / 4
+    this.posy = window.innerHeight - window.innerWidth / 2.5
     this.horSpeed = 0
     this.horAccSpeed = 0   // 水平方向加速度
     this.stop = false      // 是否静止状态
@@ -34,7 +34,7 @@ export default class BingHu {
 
   reset () {
     this.posx = window.innerWidth / 2
-    this.posy = window.innerHeight - window.innerWidth / 4
+    this.posy = window.innerHeight - window.innerWidth / 2.5
     this.stop = false
     this.horSpeed = 0
     this.horAccSpeed = 0   // 水平方向加速度

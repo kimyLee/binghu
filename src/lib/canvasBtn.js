@@ -61,7 +61,7 @@ export default class CanvasBtn {
 
       context.beginPath()
       context.arc(item.centerX, item.centerY, item.radius, 0, 2 * Math.PI, false)
-      context.strokeStyle = `rgba(0, 0, 0, ${(100 - item.radius / 3 * 10) / 100})`
+      context.strokeStyle = `rgba(255, 255, 255, ${(100 - item.radius / 3 * 10) / 100})`
       context.lineWidth = 2
       context.stroke()
 

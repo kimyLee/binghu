@@ -64,20 +64,21 @@ export default {
     }
      .top-box {
         position: relative;
-        display: inline-block;
-        width: 67%;
-        // margin-top: 11.2rem;
-        // margin-top: calc(40vh);
-        top: 0.4rem;
-        background: #fff;
+        width: 66%;
+        left: 17%;
+        margin: 0;
+        top: 1px;
         &:before {
           content: "";
           position: absolute;
+          z-index: 999;
           top: -8.2rem;
           left: 0;
-          border-width: 0 0 8.2em 3.2rem;
+          width: 0;
+          height: 0;
+          border-width: 4.1rem 1.6rem 4.15rem 1.6rem;
           border-style: solid;
-          border-color:#fff transparent;
+          border-color:transparent #fff #fff transparent;
         }
         &:after {
           content: "";
@@ -86,6 +87,7 @@ export default {
           right: 0;
           left: 3.2rem;
           height: 8.2rem;
+          border: none;
           background: #fff;
         }
         .triangle-left {
@@ -106,9 +108,12 @@ export default {
       }
     .dialog-panel {
       position: relative;
-      display: inline-block;
-      width: 67%;
+      display: block;
+      width: 66%;
+        left: 17%;
       background: #fff;
+      border: none;
+       margin: 0;
     
       &:before {
         content: "";
@@ -134,7 +139,7 @@ export default {
 
       .dialog-content {
         position: relative;
-        
+        font-size: 1.6rem;
         z-index: 999;
         &.longText {
         margin-top: -4.4rem;

@@ -64,7 +64,7 @@ export default {
     this.peopleImg1 = new Image()
     this.peopleImg2 = new Image()
     this.brushImage = new Image()
-    this.domain = location.hostname.indexOf('localhost') < 0 ? '/binghutiaozhan' : ''
+    this.domain = location.port.indexOf('8888') < 0 ? '/binghutiaozhan' : ''
     this.image.src = this.domain + '/static/images/binghu.png'
     this.brushImage.src = this.domain + '/static/images/brush.png'
 

@@ -64,18 +64,19 @@ export default {
     }
      .top-box {
         position: relative;
-        display: inline-block;
+        // display: inline-block;
         width: 67%;
+        height: 0;
         // margin-top: 11.2rem;
         // margin-top: calc(40vh);
-        top: 0.3rem;
-        background: #fff;
+        // top: 0.3rem;
+        // background: #fff;
         &:before {
           content: "";
           position: absolute;
           top: -8.2rem;
           left: 0;
-          border-width: 0 0 8.2em 3.2rem;
+          border-width: 8.2em 3.2rem;
           border-style: solid;
           border-color:#fff transparent;
         }

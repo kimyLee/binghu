@@ -55,7 +55,8 @@ export default {
       image: '',            // 冰壶贴图对象
       peopleImg1: '',        // 观众贴图对象1
       peopleImg2: '',        // 观众贴图对象2
-      brushImage: ''        // 刷子贴图对象
+      brushImage: '',       // 刷子贴图对象
+      meter: ''             // 标尺贴图对象
     }
   },
   created () {
@@ -66,12 +67,14 @@ export default {
     this.peopleImg1 = new Image()
     this.peopleImg2 = new Image()
     this.brushImage = new Image()
+    this.meter = new Image()
     this.domain = location.port.indexOf('8888') < 0 ? '/binghutiaozhan' : ''
     this.image.src = this.domain + '/static/images/binghu.png'
     this.brushImage.src = this.domain + '/static/images/brush.png'
 
     this.peopleImg1.src = this.domain + '/static/images/people2.jpg'
     this.peopleImg2.src = this.domain + '/static/images/people.jpg'
+    this.meter.src = this.domain + '/static/images/meter.jpg'
   },
   methods: {
     run () {
@@ -204,30 +207,33 @@ export default {
       ctx.fillStyle = '#ccc'
       // cxt.fillRect(0, 0, this.Width, this.Height)
 
-      let numX = (this.Width - this.roadWidth) / 2 - 20      // 数字横坐标
+      let numX = (this.Width - this.roadWidth) / 2 - 38      // 数字横坐标
       let beginY = this.beginMove
       let lineHeight = (beginY - this.topestDistance) / 25
-      let topHeight = 14
-      let bottomHeight = 8
+      // let topHeight = 14
+      // let bottomHeight = 8
       ctx.lineWidth = 1
       ctx.strokeStyle = '#ccc'
       ctx.fillStyle = '#ccc'
       ctx.beginPath()
-      for (let i = 0; i <= 23; i++) {
-        if (i < 23) {
-          ctx.moveTo(numX, beginY - i * lineHeight + this.bgWalk - topHeight)
-          ctx.lineTo(numX + this.roadWidth + 40, beginY - i * lineHeight + this.bgWalk - topHeight)
-          ctx.stroke()
-        }
-        ctx.moveTo(numX, beginY + bottomHeight - i * lineHeight + this.bgWalk)
-        ctx.lineTo(numX + this.roadWidth + 40, beginY + bottomHeight - i * lineHeight + this.bgWalk)
-        ctx.stroke()
-        ctx.fillText(50 - i * 2 + 'm', numX, beginY - lineHeight * i + this.bgWalk)
-      }
+      // 开始剪切x ,开始剪切y,被剪切宽度,被剪切高度,画布上x坐标,画布上y坐标,图像的宽度,图像的高度
+      ctx.drawImage(this.meter, 0, 0, 334, 1539, numX, this.topestDistance + this.bgWalk + lineHeight * 2, 200, beginY - this.topestDistance - lineHeight * 5)
+      // for (let i = 0; i <= 23; i++) {
+        // console.log('hello')
+        // if (i < 23) {
+        //   ctx.moveTo(numX, beginY - i * lineHeight + this.bgWalk - topHeight)
+        //   ctx.lineTo(numX + this.roadWidth + 40, beginY - i * lineHeight + this.bgWalk - topHeight)
+        //   ctx.stroke()
+        // }
+        // ctx.moveTo(numX, beginY + bottomHeight - i * lineHeight + this.bgWalk)
+        // ctx.lineTo(numX + this.roadWidth + 40, beginY + bottomHeight - i * lineHeight + this.bgWalk)
+        // ctx.stroke()
+        // ctx.fillText(50 - i * 2 + 'm', numX, beginY - lineHeight * i + this.bgWalk)
+      // }
 
       ctx.beginPath()
       ctx.strokeStyle = '#ccc'
-      ctx.lineWidth = 30
+      ctx.lineWidth = 50
       ctx.moveTo(this.people.width, 0)
       ctx.lineTo(this.people.width, this.Height)
       ctx.closePath()
@@ -243,7 +249,8 @@ export default {
 
       ctx.beginPath()
       ctx.strokeStyle = '#eee'
-      ctx.lineWidth = numX - this.people.width - 30
+      // ctx.lineWidth = numX - this.people.width - 10
+      ctx.lineWidth = 10
       ctx.moveTo(this.people.width + 20, 0)
       ctx.lineTo(this.people.width + 20, this.Height)
       ctx.closePath()
@@ -251,7 +258,8 @@ export default {
 
       ctx.beginPath()
       ctx.strokeStyle = '#eee'
-      ctx.lineWidth = numX - this.people.width - 30
+      // ctx.lineWidth = numX - this.people.width - 50
+      ctx.lineWidth = 10
       ctx.moveTo(this.Width - this.people.width - 20, 0)
       ctx.lineTo(this.Width - this.people.width - 20, this.Height)
       ctx.closePath()

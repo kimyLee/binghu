@@ -67,6 +67,7 @@ export default {
         this.progress = 0
       }
       if (this.status === 0) {
+        // window.setTimeout(this.swingPower, 16)
         window.requestAnimFrame(this.swingPower)
       }
     },

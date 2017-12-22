@@ -22,7 +22,6 @@ export default class Brush {
 
   updateSelf () {
     if (this.count) {
-      console.log('in')
       this.show = true
       this.posX = this.posX + this.decreaseFactor * 8
       if (this.dir === 'left' && this.posX < window.innerWidth / 2 - this.margin - this.width / 2) {

@@ -3,11 +3,13 @@
  */
 /* canvas 按钮特效  */
 export default class CanvasBtn {
-  constructor (dom) {
+  constructor (dom, side) {
     this.circles = []
     this.max_radius = ''
     this.context = ''
     this.canvas = ''
+    this.circleOffsetX = side === 'left' ? -8 : 8
+    this.circleOffsetY = side === 'left' ? -10 : -10
     this.init(dom)
   }
 
@@ -44,8 +46,8 @@ export default class CanvasBtn {
     this.max_radius = $target.offsetWidth
     let circle = {
       radius: 0,
-      centerX: $target.offsetWidth / 2,
-      centerY: $target.offsetHeight / 2
+      centerX: $target.offsetWidth / 2 + this.circleOffsetX,
+      centerY: $target.offsetHeight / 2 + this.circleOffsetY
     }
     this.circles.push(circle)
     if (this.circles.length <= 1) {
@@ -72,7 +74,7 @@ export default class CanvasBtn {
     }
 
     if (this.circles.length > 0) {
-      window.requestAnimationFrame(() => { this.draw() })
+      window.requestAnimFrame(() => { this.draw() })
     } else {
       context.clearRect(0, 0, this.canvas.width, this.canvas.height)
     }

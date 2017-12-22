@@ -17,7 +17,7 @@ export default {
   mounted () {
     this.$nextTick(() => {
       /* eslint-disable no-unused-vars */
-      let canvasBtn = new CanvasBtn(this.$el)
+      let canvasBtn = new CanvasBtn(this.$el, this.side)
     })
   },
   data () {

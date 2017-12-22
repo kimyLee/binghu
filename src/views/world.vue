@@ -31,8 +31,10 @@ export default {
   },
   data () {
     return {
+      beginMove: '',        // 从哪个点开始计算距离， 默认2 / 3 Height
       domain: '',
-      topest: -630,      // 0 点
+      topestDistance: -630, // 终 点 实际位移
+      topest: -630,       // 终 点
       score: 0,           // 距离分数
       binghu: '',         // 冰壶对象
       brush: '',          // 刷子对象
@@ -77,7 +79,7 @@ export default {
         return
       }
       this.render()
-      window.requestAnimationFrame(this.run)
+      window.requestAnimFrame(this.run)
     },
 
     shot (val) {
@@ -85,6 +87,8 @@ export default {
       this.binghu.stop = false
     },
 
+    // score 计算
+    // 最高点减去冰壶起点， 收敛到50 , this.ratio = (this.binghu.begin - this.topest) / 50
     render () {
       this.context.clearRect(this.boxX, this.boxY, this.Width, this.Height)
       this.currentFrame++
@@ -95,8 +99,9 @@ export default {
       this.drawBrush()
       this.context.save()
       this.context.restore()
-      this.score = (Math.abs(-580 + this.bgWalk - this.Height / 3 * 2) / this.ratio).toFixed(1)
-      this.judge()                  // 判定是否gameover
+
+      this.score = (Math.abs(this.beginMove - this.topestDistance - this.bgWalk) / this.ratio).toFixed(1)
+      this.judge()
     },
 
     drawBrush () {
@@ -162,7 +167,7 @@ export default {
       let binghu = this.binghu
       if (!this.binghu.stop) {
         this.binghu.posy = -this.speed / this.speedFactor + this.binghu.posy
-        if (this.binghu.posy < this.Height / 3 * 2) {
+        if (this.binghu.posy < this.beginMove) {
           this.binghu.stop = true
         }
       }
@@ -199,22 +204,25 @@ export default {
       ctx.fillStyle = '#ccc'
       // cxt.fillRect(0, 0, this.Width, this.Height)
 
-      let numX = (this.Width - this.roadWidth) / 2 - 20
-      let beginY = 610
-      let topHeight = 15
-      let bottomHeight = 10
+      let numX = (this.Width - this.roadWidth) / 2 - 20      // 数字横坐标
+      let beginY = this.beginMove
+      let lineHeight = (beginY - this.topestDistance) / 25
+      let topHeight = 14
+      let bottomHeight = 8
       ctx.lineWidth = 1
       ctx.strokeStyle = '#ccc'
       ctx.fillStyle = '#ccc'
       ctx.beginPath()
-      for (let i = 0; i <= 24; i++) {
-        ctx.moveTo(numX, beginY - i * 48 + this.bgWalk - topHeight)
-        ctx.lineTo(numX + this.roadWidth + 40, beginY - i * 48 + this.bgWalk - topHeight)
+      for (let i = 0; i <= 23; i++) {
+        if (i < 23) {
+          ctx.moveTo(numX, beginY - i * lineHeight + this.bgWalk - topHeight)
+          ctx.lineTo(numX + this.roadWidth + 40, beginY - i * lineHeight + this.bgWalk - topHeight)
+          ctx.stroke()
+        }
+        ctx.moveTo(numX, beginY + bottomHeight - i * lineHeight + this.bgWalk)
+        ctx.lineTo(numX + this.roadWidth + 40, beginY + bottomHeight - i * lineHeight + this.bgWalk)
         ctx.stroke()
-        ctx.moveTo(numX, beginY + bottomHeight - i * 48 + this.bgWalk)
-        ctx.lineTo(numX + this.roadWidth + 40, beginY + bottomHeight - i * 48 + this.bgWalk)
-        ctx.stroke()
-        ctx.fillText(50 - i * 2 + 'm', numX, beginY - i * 48 + this.bgWalk)
+        ctx.fillText(50 - i * 2 + 'm', numX, beginY - lineHeight * i + this.bgWalk)
       }
 
       ctx.beginPath()
@@ -248,43 +256,6 @@ export default {
       ctx.lineTo(this.Width - this.people.width - 20, this.Height)
       ctx.closePath()
       ctx.stroke()
-
-      // ctx.fillText('0', numX, 610 + this.bgWalk)
-      // ctx.fillText('2', numX, 562 + this.bgWalk)
-      // ctx.fillText('4', numX, 514 + this.bgWalk)
-      // ctx.fillText('6', numX, 466 + this.bgWalk)
-      // ctx.fillText('8', numX, 418 + this.bgWalk)
-
-      // ctx.fillText('10', numX, 370 + this.bgWalk)
-      // ctx.fillText('12', numX, 322 + this.bgWalk)
-      // ctx.fillText('14', numX, 274 + this.bgWalk)
-      // ctx.fillText('16', numX, 226 + this.bgWalk)
-      // ctx.fillText('18', numX, 178 + this.bgWalk)
-
-      // ctx.fillText('20', numX, 130 + this.bgWalk)
-      // ctx.fillText('22', numX, 82 + this.bgWalk)
-      // ctx.fillText('24', numX, 34 + this.bgWalk)
-      // ctx.fillText('26', numX, -14 + this.bgWalk)
-      // ctx.fillText('28', numX, -62 + this.bgWalk)
-
-      // ctx.fillText('30', numX, -110 + this.bgWalk)
-      // ctx.fillText('32', numX, -158 + this.bgWalk)
-      // ctx.fillText('34', numX, -206 + this.bgWalk)
-      // ctx.fillText('36', numX, -254 + this.bgWalk)
-      // ctx.fillText('38', numX, -302 + this.bgWalk)
-
-      // ctx.fillText('40', numX, -350 + this.bgWalk)
-      // ctx.fillText('42', numX, -398 + this.bgWalk)
-      // ctx.fillText('44', numX, -446 + this.bgWalk)
-      // ctx.fillText('46', numX, -494 + this.bgWalk)
-      // ctx.fillText('48', numX, -542 + this.bgWalk)
-
-      // ctx.fillText('50', numX, -590 + this.bgWalk)
-      // ctx.fillText('52', numX, -638 + this.bgWalk)
-      // ctx.fillText('54', numX, -686 + this.bgWalk)
-      // ctx.fillText('56', numX, -734 + this.bgWalk)
-      // ctx.fillText('58', numX, -782 + this.bgWalk)
-      // ctx.fillText('60', numX, -830 + this.bgWalk)
     },
 
     judge () {
@@ -306,7 +277,7 @@ export default {
       this.binghu.reset()
       this.status = 0
       this.bgWalk = 0
-      this.topest = -700
+      this.topest = this.topestDistance
       this.$refs.powerLine.reset()
       // this.run()
     },
@@ -332,20 +303,12 @@ export default {
   mounted () {
     this.$nextTick(() => {
       // requestAnimFrame 兼容
-      window.requestAnimFrame = (() => {
-        return window.requestAnimationFrame ||
-          window.webkitRequestAnimationFrame ||
-          window.mozRequestAnimationFrame ||
-          function (callback) {
-            window.setTimeout(callback, 1000 / 60)
-          }
-      })()
-
       // 执行逻辑
       // 插入画布
-      this.Width = window.innerWidth         // 屏幕宽度
-      this.Height = window.innerHeight       // 屏幕高度
-      this.ratio = (590 + this.Height / 3 * 2) / 50
+      this.Width = window.innerWidth             // 屏幕宽度
+      this.Height = window.innerHeight           // 屏幕高度
+      this.beginMove = 2 / 3 * this.Height       // 开始滑动
+      this.ratio = (this.beginMove - this.topestDistance) / 50
       let str = '<canvas id="canvas" width=' + this.Width + '; height=' + this.Height + '>Sorry! you的浏览器不支持canvas</canvas>'
       document.getElementById('stage').innerHTML = str
       // 角色图片

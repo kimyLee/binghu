@@ -67,7 +67,7 @@ export default {
         this.progress = 0
       }
       if (this.status === 0) {
-        window.requestAnimationFrame(this.swingPower)
+        window.requestAnimFrame(this.swingPower)
       }
     },
     shot () {

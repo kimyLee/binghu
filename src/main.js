@@ -4,6 +4,15 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 
+window.requestAnimFrame = (() => {
+  return window.requestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame ||
+    function (callback) {
+      window.setTimeout(callback, 30)
+    }
+})()
+
 Vue.config.productionTip = false
 
 Vue.filter('autoPre', (url) => {

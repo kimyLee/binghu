@@ -35,7 +35,7 @@ export default class BingHu {
   reset () {
     this.posx = window.innerWidth / 2
     this.posy = window.innerHeight - window.innerWidth / 2.5
-    this.stop = false
+    this.stop = true
     this.horSpeed = 0
     this.horAccSpeed = 0   // 水平方向加速度
     this.follower = {}

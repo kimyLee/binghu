@@ -6,6 +6,13 @@ import router from './router'
 
 Vue.config.productionTip = false
 
+Vue.filter('autoPre', (url) => {
+  if (location.port.indexOf('8888') < 0) {
+    return `/binghutiaozhan${url}?20171220`
+  }
+  return url
+})
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

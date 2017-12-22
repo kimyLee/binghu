@@ -1,22 +1,19 @@
 <template>
   <div class="my-dialog-hover" v-show="open">
     <div class="dialog-container">
-        <!-- 输入框顶部占位 -->
         <div class="top-box">
-          <!-- 左边的三角形 -->
           <div class="triangle-left"></div>
         </div>
 
         <div class="dialog-panel">
-          <div class="dialog-content" :class="{'longText': Over70}">
-              <slot></slot>
+          <div class="dialog-content" :class="{'longText': Over70}" :style="{'height': height + 'rem'}">
+              <div class="dialog-title"><slot name="title"></slot></div>
+              <div class="dialog-text"><slot></slot></div>
           </div>
-           <!-- 右边的三角形 -->
           <div class="triangle-right"></div>
         </div>  
 
-         <!-- 关闭按钮 -->
-          <div class="close-btn" @click="handleClose">×</div>
+        <div class="close-btn" @click="handleClose">×</div>
     </div>
    
   </div>
@@ -25,7 +22,7 @@
 <script>
 export default {
   name: 'dialogs',
-  props: ['open'],
+  props: ['open', 'height'],
   mounted () {
     this.$nextTick(() => {
       let $content = this.$el.querySelector('.dialog-content')
@@ -55,7 +52,7 @@ export default {
     left: 0;
     z-index: 999;
     text-align: center;
-    background: rgba(0, 0, 0, .67);
+    background: rgba(0, 0, 0, .77);
     .dialog-container {
       z-index: 999;
       top: 50%;
@@ -64,41 +61,45 @@ export default {
     }
      .top-box {
         position: relative;
-        // display: inline-block;
-        width: 67%;
-        height: 0;
-        // margin-top: 11.2rem;
-        // margin-top: calc(40vh);
-        // top: 0.3rem;
-        // background: #fff;
+        width: 66%;
+        left: 17%;
+        margin: 0;
+        top: 1px;
         &:before {
           content: "";
           position: absolute;
+          z-index: 999;
           top: -8.2rem;
           left: 0;
-          border-width: 8.2em 3.2rem;
+          width: 0;
+          height: 0;
+           border-width: 8.2em 3.9rem 0 0;
           border-style: solid;
-          border-color:#fff transparent;
+          border-color: transparent #fff;
+          // border-style: solid;
+          // border-width: 4.1rem 1.6rem 4.15rem 1.6rem;
+          // border-color:transparent #fff #fff transparent;
         }
         &:after {
           content: "";
           position: absolute;
-          top: -8.2rem;
+          top: -8.1rem;
           right: 0;
-          left: 3.2rem;
+          left: 3.8rem;
           height: 8.2rem;
+          border: none;
           background: #fff;
         }
         .triangle-left {
           position: absolute;
-          left: 0;
-          top: -9.2rem;
+          left: -3px;
+          top: -9rem;
           width: 0;
           height: 0;
           border:solid rgb(216,66, 71);
           border-top-width: 4.1rem;
-          border-left-width: 1.6rem;
-          border-right-width: 1.55rem;
+          border-left-width: 1.95rem;
+          border-right-width: 1.95rem;
           border-bottom-width: 4.1rem;
           border-bottom-color: transparent;
           border-right-color: transparent;
@@ -107,16 +108,19 @@ export default {
       }
     .dialog-panel {
       position: relative;
-      display: inline-block;
-      width: 67%;
+      display: block;
+      width: 66%;
+        left: 17%;
       background: #fff;
+      border: none;
+       margin: 0;
     
       &:before {
         content: "";
         position: absolute;
         bottom: -8.1rem;
         right: 0;
-        border-width: 8.2em 3.2rem 0 0;
+        border-width: 8.2em 3.9rem 0 0;
         border-style: solid;
         border-color: #fff transparent;
       }
@@ -125,7 +129,7 @@ export default {
         position: absolute;
         bottom: -8.1rem;
         left: 0;
-        right: 3.2rem;
+        right: 3.9rem;
         // border-width: 8.2rem;
         // border-style: solid;
         // border-color: #fff;
@@ -135,23 +139,44 @@ export default {
 
       .dialog-content {
         position: relative;
-        
+        font-size: 1.4rem;
+        color: #999;
+        font-style:italic;
         z-index: 999;
+        text-align: left;
+        padding: 0 1.6rem;
         &.longText {
         margin-top: -4.4rem;
          margin-bottom: -4.4rem;
         }
+        .dialog-title {
+          color: #d84247;
+          font-style:italic;
+          font-size: 2.4rem;
+          font-weight: bold;
+          position: relative;
+          top: -6rem;
+          text-align: center;
+          img {
+            display: inline-block;
+            height: 2.8rem;
+          }
+        }
+        .dialog-text{
+          position: absolute;
+          top: -2rem;
+        }
       }
       .triangle-right {
           position: absolute;
-          right: 0;
-          bottom: -9.2rem;
+          right: -3px;
+          bottom: -9rem;
           width: 0;
           height: 0;
           border: solid rgb(216,66, 71);
           border-top-width: 4.1rem;
-          border-left-width: 1.55rem;
-          border-right-width: 1.6rem;
+          border-left-width: 1.95rem;
+          border-right-width: 1.95rem;
           border-bottom-width: 4.1rem;
           border-top-color: transparent;
           border-left-color: transparent;

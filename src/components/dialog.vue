@@ -13,7 +13,7 @@
           <div class="triangle-right"></div>
         </div>
 
-        <div class="close-btn" @click="handleClose">×</div>
+        <div class="close-btn" @click="handleClose" v-show="colseable">×</div>
     </div>
 
   </div>
@@ -22,7 +22,19 @@
 <script>
 export default {
   name: 'dialogs',
-  props: ['open', 'height'],
+  props: {
+    colseable: {
+      type: Boolean,
+      default: true
+    },
+    open: {
+      type: Boolean,
+      default: false
+    },
+    height: {
+      type: Number | String
+    }
+  },
   mounted () {
     this.$nextTick(() => {
       let $content = this.$el.querySelector('.dialog-content')
@@ -137,7 +149,6 @@ export default {
         position: relative;
         font-size: 1.4rem;
         color: #999;
-        font-style:italic;
         z-index: 999;
         text-align: left;
         &.longText {
@@ -146,7 +157,6 @@ export default {
         }
         .dialog-title {
           color: #d84247;
-          font-style:italic;
           font-size: 2.4rem;
           font-weight: bold;
           position: relative;

@@ -26,7 +26,7 @@
         </svg>
         <br>
         {{curProgress}}%
-      </div>  
+      </div>
     </div>
     <!-- 主页面 -->
     <div v-show="curProgress >= 100">
@@ -49,8 +49,11 @@
       </div>
       <!-- 游戏协议 -->
       <div class="game-protocol">
-        <input type="checkbox" class="game-checkbox" v-model="hasCheck"/>
-        <button class="game-protocol-btn" @click="seeProtocol=true">查看游戏声明</button>
+        <label>
+          <input type="checkbox" class="game-checkbox" v-model="hasCheck"/>
+          <span></span>
+        </label>
+        <span class="game-protocol-btn" @click="seeProtocol=true">查看游戏声明</span>
       </div>
     </div>
 
@@ -262,26 +265,52 @@ export default {
         img {
           width: 23.5rem;
         }
-        // background: url('../assets/btn.png') no-repeat;
-        // background-size: 100%;
+        /* // background: url('../assets/btn.png') no-repeat;
+        // background-size: 100%; */
       }
     }
     .game-protocol {
       text-align: center;
-      .game-checkbox {
-        width: 2rem;
-        height: 2rem;
-        vertical-align: top;
+      label {
+        display: inline-block;
+        cursor: pointer;
       }
+
+      label input[type='checkbox'] {
+        outline: none;
+        border: 0;
+        appearance: none;
+        outline: none;
+        display:none;
+        vertical-align: middle;
+      }
+
+      label input[type='checkbox'] + span {
+        width: 2.3rem;
+        height: 2.3rem;
+        border: 1px solid #ccc;
+        display: inline-block;
+        background: #eee;
+        background: linear-gradient(to top, #f1f0f0, #fefefe);
+      }
+
+      label input[type='checkbox']:checked + span {
+        background: #f00;
+      }
+
       .game-protocol-btn {
-         width: 12.5rem;
-         height: 2rem;
-         margin-top: 0.2rem;
+        width: 12.5rem;
+        color: #444;
+        padding: .5rem;
+        margin-left: 10px;
         vertical-align: top;
-         box-shadow: 0 1px 1px 2px #ddd;
+        display: inline-block;
+        border: 1px solid #ccc;
+        background: linear-gradient(to top, #f1f0f0, #fefefe);
+        box-shadow: 0 0 2px #ccc;
       }
     }
 
-    
+
   }
 </style>

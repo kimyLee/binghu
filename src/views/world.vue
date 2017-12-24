@@ -8,13 +8,13 @@
         <div class="box-item num">{{score}}m</div>
       </div>
       <!-- 排行榜 -->
-      <div class="ranking">排行榜</div>
+      <div class="ranking" @click="openRanking">排行榜</div>
     </div>
 
-    <power-line 
-    ref="powerLine" 
-    @returnSpeed="getJourney" 
-    @changeStatus="shot" 
+    <power-line
+    ref="powerLine"
+    @returnSpeed="getJourney"
+    @changeStatus="shot"
     @changeRotate="getRotate"></power-line>
     <option-btn  @click="handleDirect('left')">左扫冰</option-btn>
     <option-btn  @click="handleDirect('right')" side='right'>右扫冰</option-btn>
@@ -29,6 +29,32 @@
         <img :src="'/static/images/moreSmooth.png' | autoPre" />
       </div>
     </transition>
+
+    <my-dialog height="26.5" :open="showRanking" @closeDialog="showRanking=false" class="rankings">
+      <img slot="title" :src="'/static/images/rank.png' | autoPre" />
+      <div class="ranking-section rank-head">
+        <div class="name">用户昵称</div>
+        <div class="score">分数</div>
+      </div>
+      <scroller
+        class="wrapper"
+        :data="data"
+        :pullup="pullup"
+        @pulldown="fetchData">
+        <ul class="content">
+          <li v-for="item in data">
+            <div class="ranking-section">
+              <span class="rank">{{ item.rank }}</span>
+              <img :src="item.avatar" class="avatar" />
+              <span class="name">{{ item.name }}</span>
+              <span class="score">{{ item.score }}</span>
+          </div>
+          </li>
+        </ul>
+        <div class="loading-wrapper"></div>
+      </scroller>
+      <div class="ranking-more">向上拉动查看更多排名</div>
+    </my-dialog>
   </div>
 </template>
 
@@ -38,41 +64,50 @@ import optionBtn from '@/components/optionBtn'
 import BingHu from '@/class/binghu'
 import Brush from '@/class/Brush'
 import People from '@/class/people'
+import myDialog from '@/components/dialog'
+import Scroller from '@/components/scroller'
+
 export default {
   name: 'world',
   components: {
     powerLine,
-    optionBtn
+    optionBtn,
+    myDialog,
+    Scroller
   },
   data () {
     return {
-      hasBrush: 0,          // 点击刷过次数，超过3次不用触发更加顺滑
-      beginMove: '',        // 从哪个点开始计算距离， 默认2 / 3 Height
-      topestDistance: -630, // 终点实际位移
-      topest: -630,       // 终 点
-      score: 0,           // 距离分数
-      binghu: '',         // 冰壶对象
-      brush: '',          // 刷子对象
-      bgWalk: 0,          // 背景偏移
-      roadWidth: 100,     // 轨道宽度
-      speed: 0,           // 速度力度
-      speedFactor: 33,    // 速度计算因子
-      ratio: '',          // 分数计算因子
-      status: 0,          // 当前状态， 0 正在选择力度， 1 正在移动，  2， 游戏结束
+      hasBrush: 0,            // 点击刷过次数，超过3次不用触发更加顺滑
+      beginMove: '',          // 从哪个点开始计算距离， 默认2 / 3 Height
+      domain: '',
+      topestDistance: -630,   // 终 点 实际位移
+      topest: -630,           // 终 点
+      score: 0,               // 距离分数
+      binghu: '',             // 冰壶对象
+      brush: '',              // 刷子对象
+      bgWalk: 0,              // 背景偏移
+      roadWidth: 100,         // 轨道宽度
+      speed: 0,               // 速度力度
+      speedFactor: 33,        // 速度计算因子
+      ratio: '',              // 分数计算因子
+      status: 0,              // 当前状态， 0 正在选择力度， 1 正在移动，  2， 游戏结束
 
-      context: '',        // 上下文
-      canvas: '',         // 画布对象
-      boxX: 0,            // 画布起点横坐标
-      boxY: 0,            // 画布起点纵坐标
-      Width: '',          // 画布宽度
-      Height: '',         // 画布高度
-      currentFrame: 0,     // 当前帧
-      image: '',            // 冰壶贴图对象
-      peopleImg1: '',        // 观众贴图对象1
-      peopleImg2: '',        // 观众贴图对象2
-      brushImage: '',       // 刷子贴图对象
-      meter: '',             // 标尺贴图对象
-      showTextEffect: ''     // 特效类型
+      context: '',            // 上下文
+      canvas: '',             // 画布对象
+      boxX: 0,                // 画布起点横坐标
+      boxY: 0,                // 画布起点纵坐标
+      Width: '',              // 画布宽度
+      Height: '',             // 画布高度
+      currentFrame: 0,        // 当前帧
+      image: '',              // 冰壶贴图对象
+      peopleImg1: '',         // 观众贴图对象1
+      peopleImg2: '',         // 观众贴图对象2
+      brushImage: '',         // 刷子贴图对象
+      meter: '',              // 标尺贴图对象
+      showTextEffect: '',     // 特效类型
+      showRanking: false,     // 显示排行榜
+      pullup: true,           // 加载更多
+      data: []
     }
   },
   created () {
@@ -84,9 +119,11 @@ export default {
     this.peopleImg2 = new Image()
     this.brushImage = new Image()
     this.meter = new Image()
-    this.image.src = this.$domain + '/static/images/binghu.png'
-    this.brushImage.src = this.$domain + '/static/images/brush.png'
+    this.fetchData()
 
+    this.domain = location.port.indexOf('8888') < 0 ? '/binghutiaozhan' : ''
+    this.image.src = this.domain + '/static/images/binghu.png'
+    this.brushImage.src = this.domain + '/static/images/brush.png'
     this.peopleImg1.src = this.$domain + '/static/images/people2.jpg'
     this.peopleImg2.src = this.$domain + '/static/images/people.jpg'
     this.meter.src = this.$domain + '/static/images/meter.jpg'
@@ -331,6 +368,36 @@ export default {
       setTimeout(() => {
         this.showTextEffect = false
       }, 500)
+    },
+
+    // 打开排行榜
+    openRanking () {
+      this.showRanking = true
+    },
+
+    fetchData () {
+      this.data = [
+        { rank: 1, avatar: '/static/images/binghu.png', name: 'xxx', score: 199 },
+        { rank: 2, avatar: '/static/images/binghu.png', name: 'yyy', score: 198 },
+        { rank: 3, avatar: '/static/images/binghu.png', name: 'zzz', score: 197 },
+        { rank: 4, avatar: '/static/images/binghu.png', name: 'www', score: 196 },
+        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
+        { rank: 1, avatar: '/static/images/binghu.png', name: 'xxx', score: 199 },
+        { rank: 2, avatar: '/static/images/binghu.png', name: 'yyy', score: 198 },
+        { rank: 3, avatar: '/static/images/binghu.png', name: 'zzz', score: 197 },
+        { rank: 4, avatar: '/static/images/binghu.png', name: 'www', score: 196 },
+        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
+        { rank: 1, avatar: '/static/images/binghu.png', name: 'xxx', score: 199 },
+        { rank: 2, avatar: '/static/images/binghu.png', name: 'yyy', score: 198 },
+        { rank: 3, avatar: '/static/images/binghu.png', name: 'zzz', score: 197 },
+        { rank: 4, avatar: '/static/images/binghu.png', name: 'www', score: 196 },
+        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
+        { rank: 1, avatar: '/static/images/binghu.png', name: 'xxx', score: 199 },
+        { rank: 2, avatar: '/static/images/binghu.png', name: 'yyy', score: 198 },
+        { rank: 3, avatar: '/static/images/binghu.png', name: 'zzz', score: 197 },
+        { rank: 4, avatar: '/static/images/binghu.png', name: 'www', score: 196 },
+        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 }
+      ]
     }
   },
   mounted () {
@@ -360,7 +427,7 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style lang="scss" rel="stylesheet/scss">
+<style lang="scss">
   .container {
     width: 100%;
     height: 100%;
@@ -399,7 +466,7 @@ export default {
             font-size: 2rem;
           }
         }
-        
+
       }
       .ranking {
           width: 8.2rem;
@@ -435,11 +502,11 @@ export default {
       height: 20rem;
       text-align: center;
       top: 45%;
-      margin-top: -10rem;  
+      margin-top: -10rem;
       img {
         display: inline-block;
         height: 100%;
-      }  
+      }
     }
     .fade-enter-active, .fade-leave-active {
       transform: scale(1.2);
@@ -448,6 +515,87 @@ export default {
     .fade-enter, .fade-leave-to {
       transform: scale(1);
       opacity: 0;
+    }
+  }
+
+  .ranking-section {
+    font-style: normal;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+
+    .rank {
+      flex: 1;
+      font-size: 1rem;
+    }
+
+    .name {
+      font-size: 1.4rem;
+      flex: 2;
+    }
+
+    .avatar {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    .score {
+      flex: 1;
+      font-size: 1.4rem;
+      color: #e3464c;
+    }
+
+    &.rank-head {
+      padding: 0 4rem;
+      margin-bottom: 1rem;
+      .score,
+      .name {
+        color: #767676;
+        font-size: 1.3rem;
+        text-align: center;
+      }
+    }
+  }
+
+  .wrapper {
+    overflow: hidden;
+    max-height: 30rem;
+    width: 80%;
+    margin: 0 auto;
+  }
+
+  .content {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    li {
+      color: #767676;
+      padding: 0.5rem;
+      border-bottom: 1px solid #eee;
+      &:last-child {
+        border-bottom: 0;
+      }
+    }
+  }
+
+  .ranking-more {
+    position: relative;
+    font-size: 1.1rem;
+    height: 1rem;
+    padding-top: 1rem;
+    text-align: center;
+    color: #777;
+    font-style: normal;
+
+    &:before {
+      position: absolute;
+      content: '';
+      width: 80%;
+      left: 10%;
+      height: 1px;
+      background-color: #eee;
+      top: 0;
     }
   }
 </style>

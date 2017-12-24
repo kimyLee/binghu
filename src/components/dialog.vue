@@ -11,11 +11,11 @@
               <div class="dialog-text"><slot></slot></div>
           </div>
           <div class="triangle-right"></div>
-        </div>  
+        </div>
 
         <div class="close-btn" @click="handleClose">×</div>
     </div>
-   
+
   </div>
 </template>
 
@@ -61,8 +61,8 @@ export default {
     }
      .top-box {
         position: relative;
-        width: 66%;
-        left: 17%;
+        width: 77%;
+        left: 12%;
         margin: 0;
         top: 1px;
         &:before {
@@ -76,9 +76,9 @@ export default {
            border-width: 8.2em 3.9rem 0 0;
           border-style: solid;
           border-color: transparent #fff;
-          // border-style: solid;
+          /* // border-style: solid;
           // border-width: 4.1rem 1.6rem 4.15rem 1.6rem;
-          // border-color:transparent #fff #fff transparent;
+          // border-color:transparent #fff #fff transparent; */
         }
         &:after {
           content: "";
@@ -104,17 +104,16 @@ export default {
           border-bottom-color: transparent;
           border-right-color: transparent;
         }
-        
       }
     .dialog-panel {
       position: relative;
       display: block;
-      width: 66%;
-        left: 17%;
+      width: 77%;
+      left: 12%;
       background: #fff;
       border: none;
        margin: 0;
-    
+
       &:before {
         content: "";
         position: absolute;
@@ -130,9 +129,6 @@ export default {
         bottom: -8.1rem;
         left: 0;
         right: 3.9rem;
-        // border-width: 8.2rem;
-        // border-style: solid;
-        // border-color: #fff;
         background: #fff;
         height: 8.2rem;
       }
@@ -144,7 +140,6 @@ export default {
         font-style:italic;
         z-index: 999;
         text-align: left;
-        padding: 0 1.6rem;
         &.longText {
         margin-top: -4.4rem;
          margin-bottom: -4.4rem;
@@ -165,6 +160,7 @@ export default {
         .dialog-text{
           position: absolute;
           top: -2rem;
+          width: 100%;
         }
       }
       .triangle-right {
@@ -180,7 +176,7 @@ export default {
           border-bottom-width: 4.1rem;
           border-top-color: transparent;
           border-left-color: transparent;
-         
+
         }
 
     }

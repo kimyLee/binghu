@@ -60,17 +60,21 @@
     <!-- 游戏规则说明 -->
     <my-dialog :open="seeRule" @closeDialog="seeRule = false" height="15">
       <img slot="title" :src="'/static/images/game_rule.png' | autoPre" />
-      1. 力度条不断变化，待力度合适时点击滑行，滑出冰壶<br>
-      2. 冰壶滑行过程中，力度会不断衰减，冰壶速度也越来越慢，左右扫冰可降低力度衰减速率，同时冰壶向对应方向偏离<br>
-      3. 当力度降至为零，冰壶停止运动，或者冰壶接触滑道两边时，游戏结束<br>
-      4. 游戏结束是冰壶离终点距离为最终分数，距离越近分数越高，所得积分也越高<br>
-      5. 玩家凭借积分可····
+      <div class="results-content">
+        1. 力度条不断变化，待力度合适时点击滑行，滑出冰壶<br>
+        2. 冰壶滑行过程中，力度会不断衰减，冰壶速度也越来越慢，左右扫冰可降低力度衰减速率，同时冰壶向对应方向偏离<br>
+        3. 当力度降至为零，冰壶停止运动，或者冰壶接触滑道两边时，游戏结束<br>
+        4. 游戏结束是冰壶离终点距离为最终分数，距离越近分数越高，所得积分也越高<br>
+        5. 玩家凭借积分可····
+      </div>
     </my-dialog>
     <!-- 查看游戏声明 -->
     <my-dialog :open="seeProtocol" @closeDialog="seeProtocol = false" height="2">
        <img slot="title" :src="'/static/images/shengming.png' | autoPre" />
-        1. 本次积分只在活动期间有效<br>
-        2. 活动方保留最终解释权
+        <div class="results-content">
+          1. 本次积分只在活动期间有效<br>
+          2. 活动方保留最终解释权
+        </div>
     </my-dialog>
   </div>
 </template>

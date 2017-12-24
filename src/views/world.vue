@@ -12,10 +12,10 @@
     </div>
 
     <power-line
-    ref="powerLine"
-    @returnSpeed="getJourney"
-    @changeStatus="shot"
-    @changeRotate="getRotate"></power-line>
+      ref="powerLine"
+      @returnSpeed="getJourney"
+      @changeStatus="shot"
+      @changeRotate="getRotate"></power-line>
     <option-btn  @click="handleDirect('left')">左扫冰</option-btn>
     <option-btn  @click="handleDirect('right')" side='right'>右扫冰</option-btn>
     <!-- 文字图片特效 -->
@@ -30,17 +30,16 @@
       </div>
     </transition>
 
-    <my-dialog height="26.5" :open="showRanking" @closeDialog="showRanking=false" class="rankings">
+    <my-dialog height="26.5" :open="showRanking" @closeDialog="showRanking=false" class="dialog rankings">
       <img slot="title" :src="'/static/images/rank.png' | autoPre" />
       <div class="ranking-section rank-head">
         <div class="name">用户昵称</div>
         <div class="score">分数</div>
       </div>
-      <scroller
+      <div
+        ref="wrapper"
         class="wrapper"
-        :data="data"
-        :pullup="pullup"
-        @pulldown="fetchData">
+        @scrollToEnd="fetchData">
         <ul class="content">
           <li v-for="item in data">
             <div class="ranking-section">
@@ -52,9 +51,38 @@
           </li>
         </ul>
         <div class="loading-wrapper"></div>
-      </scroller>
+      </div>
       <div class="ranking-more">向上拉动查看更多排名</div>
     </my-dialog>
+
+    <my-dialog height="1" :open="showPoints" @closeDialog="showPoints=false" class="dialog points">
+      <img slot="title" :src="'/static/images/victory.png' | autoPre"/>
+      <div class="results-content">
+        <p class="notice">达到了<span class="num">999</span>分</p>
+        <p class="tip">每天只能有一次获得积分的机会</p>
+        <p class="tip">请明天再来吧</p>
+      </div>
+    </my-dialog>
+
+    <my-dialog :colseable="false" :height="success ? 21 : 16" :open="showResult" @closeDialog="showResult=false" class="dialog results">
+        <img slot="title" :src="'/static/images/victory.png' | autoPre" v-show="success"/>
+        <img slot="title" :src="'/static/images/failed.png' | autoPre" v-show="!success"/>
+        <div class="results-content">
+          <p class="notice">你距离靶心<span class="num"></span>9</span>M</p>
+          <p class="slogan">万宝路新红万产品全新升级</p>
+          <ul class="attrs">
+            <li>口味特点：</li>
+            <li>富在内 融于味</li>
+            <li>经典美式混合烟，口味进一步提升</li>
+            <li>劲还在，口感更顺</li>
+            <li>焦油含量降至10毫克</li>
+          </ul>
+          <p class="results-btn" v-show="success" @click="handleBtnClick('points')">
+              已了解，立刻抽积分
+          </p>
+          <p class="results-btn" @click="handleBtnClick('continue')">再次挑战</p>
+        </div>
+      </my-dialog>
   </div>
 </template>
 
@@ -65,15 +93,14 @@ import BingHu from '@/class/binghu'
 import Brush from '@/class/Brush'
 import People from '@/class/people'
 import myDialog from '@/components/dialog'
-import Scroller from '@/components/scroller'
+import BScroll from 'better-scroll'
 
 export default {
   name: 'world',
   components: {
     powerLine,
     optionBtn,
-    myDialog,
-    Scroller
+    myDialog
   },
   data () {
     return {
@@ -107,9 +134,63 @@ export default {
       showTextEffect: '',     // 特效类型
       showRanking: false,     // 显示排行榜
       pullup: true,           // 加载更多
-      data: []
+      listenScroll: true,
+      pulldown: true,
+      scroll: null,
+      beforeScroll: true,
+      data: [
+        { rank: 1, avatar: '/static/images/binghu.png', name: 'xxx', score: 199 },
+        { rank: 2, avatar: '/static/images/binghu.png', name: 'yyy', score: 198 },
+        { rank: 3, avatar: '/static/images/binghu.png', name: 'zzz', score: 197 },
+        { rank: 4, avatar: '/static/images/binghu.png', name: 'www', score: 196 },
+        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
+        { rank: 1, avatar: '/static/images/binghu.png', name: 'xxx', score: 199 },
+        { rank: 2, avatar: '/static/images/binghu.png', name: 'yyy', score: 198 },
+        { rank: 3, avatar: '/static/images/binghu.png', name: 'zzz', score: 197 },
+        { rank: 4, avatar: '/static/images/binghu.png', name: 'www', score: 196 },
+        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
+        { rank: 1, avatar: '/static/images/binghu.png', name: 'xxx', score: 199 },
+        { rank: 2, avatar: '/static/images/binghu.png', name: 'yyy', score: 198 },
+        { rank: 3, avatar: '/static/images/binghu.png', name: 'zzz', score: 197 },
+        { rank: 4, avatar: '/static/images/binghu.png', name: 'www', score: 196 },
+        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
+        { rank: 1, avatar: '/static/images/binghu.png', name: 'xxx', score: 199 },
+        { rank: 2, avatar: '/static/images/binghu.png', name: 'yyy', score: 198 },
+        { rank: 3, avatar: '/static/images/binghu.png', name: 'zzz', score: 197 },
+        { rank: 4, avatar: '/static/images/binghu.png', name: 'www', score: 196 },
+        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
+        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
+        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
+        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
+        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
+        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
+        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 }
+      ],
+
+      showResult: false,
+      showPoints: false,
+      success: false
     }
   },
+
+  watch: {
+    showRanking (nv) {
+      if (nv) {
+        // better-scroll的初始化
+        this.scroll = new BScroll(this.$refs.wrapper, {})
+        // 是否派发滚动到底部事件，用于上拉加载
+        if (this.pullup) {
+          this.scroll.on('scrollEnd', () => {
+            // 滚动到底部
+            if (this.scroll.y <= (this.scroll.maxScrollY + 50)) {
+              this.fetchData()
+            }
+          })
+        }
+      }
+    }
+  },
+
   created () {
     this.binghu = new BingHu()
     this.brush = new Brush()
@@ -128,7 +209,12 @@ export default {
     this.peopleImg2.src = this.$domain + '/static/images/people.jpg'
     this.meter.src = this.$domain + '/static/images/meter.jpg'
   },
+
   methods: {
+    fetchData () {
+      console.log('fetching data...')
+    },
+
     run () {
       if (this.status === 2) {
         return
@@ -367,29 +453,15 @@ export default {
       this.showRanking = true
     },
 
-    fetchData () {
-      this.data = [
-        { rank: 1, avatar: '/static/images/binghu.png', name: 'xxx', score: 199 },
-        { rank: 2, avatar: '/static/images/binghu.png', name: 'yyy', score: 198 },
-        { rank: 3, avatar: '/static/images/binghu.png', name: 'zzz', score: 197 },
-        { rank: 4, avatar: '/static/images/binghu.png', name: 'www', score: 196 },
-        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
-        { rank: 1, avatar: '/static/images/binghu.png', name: 'xxx', score: 199 },
-        { rank: 2, avatar: '/static/images/binghu.png', name: 'yyy', score: 198 },
-        { rank: 3, avatar: '/static/images/binghu.png', name: 'zzz', score: 197 },
-        { rank: 4, avatar: '/static/images/binghu.png', name: 'www', score: 196 },
-        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
-        { rank: 1, avatar: '/static/images/binghu.png', name: 'xxx', score: 199 },
-        { rank: 2, avatar: '/static/images/binghu.png', name: 'yyy', score: 198 },
-        { rank: 3, avatar: '/static/images/binghu.png', name: 'zzz', score: 197 },
-        { rank: 4, avatar: '/static/images/binghu.png', name: 'www', score: 196 },
-        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
-        { rank: 1, avatar: '/static/images/binghu.png', name: 'xxx', score: 199 },
-        { rank: 2, avatar: '/static/images/binghu.png', name: 'yyy', score: 198 },
-        { rank: 3, avatar: '/static/images/binghu.png', name: 'zzz', score: 197 },
-        { rank: 4, avatar: '/static/images/binghu.png', name: 'www', score: 196 },
-        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 }
-      ]
+    // 根据用户的选择进行对应的操作
+    handleBtnClick (type) {
+      if (type === 'points') {
+        // 抽奖
+      }
+
+      if (type === 'continue') {
+        // 继续游戏
+      }
     }
   },
   mounted () {
@@ -414,11 +486,14 @@ export default {
 
       this.run()
     })
+  },
+
+  destroy () {
+    this.scroll = null
   }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss">
   .container {
     width: 100%;
@@ -555,6 +630,7 @@ export default {
     max-height: 30rem;
     width: 80%;
     margin: 0 auto;
+    z-index: 99999;
   }
 
   .content {
@@ -588,6 +664,64 @@ export default {
       height: 1px;
       background-color: #eee;
       top: 0;
+    }
+  }
+
+  .results-content {
+    padding: 0 2.5rem;
+
+    .notice {
+      font-style: normal;
+      text-align: center;
+      font-size:26px;
+      color:#333;
+      margin: 0;
+    }
+
+    .tip {
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    .num {
+      color:#d35155;
+      font-weight: bold;
+      font-size: 38px;
+    }
+
+    .slogan {
+      text-align: center;
+      border-left: 5px solid #444;
+      margin: 0;
+      margin-top: 1rem;
+      color:#444;
+      font-style:normal;
+    }
+
+    .results-btn {
+      text-align: center;
+      color: #fff;
+      background-image:url('/static/images/btn-bg.png');
+      background-size: cover;
+      margin-top: 1rem;
+      height: 4rem;
+      line-height: 4rem;
+    }
+
+    .attrs {
+      list-style:none;
+      font-size:14px;
+      color:#555;
+      line-height:1.8;
+      font-style:normal;
+    }
+  }
+
+  .dialog {
+    ul,
+    p {
+      padding: 0;
+      margin: 0;
     }
   }
 </style>

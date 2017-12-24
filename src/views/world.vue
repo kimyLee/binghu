@@ -11,7 +11,11 @@
       <div class="ranking">排行榜</div>
     </div>
 
-    <power-line ref="powerLine" @returnSpeed="getJourney" @changeStatus="shot"></power-line>
+    <power-line 
+    ref="powerLine" 
+    @returnSpeed="getJourney" 
+    @changeStatus="shot" 
+    @changeRotate="getRotate"></power-line>
     <option-btn  @click="handleDirect('left')">左扫冰</option-btn>
     <option-btn  @click="handleDirect('right')" side='right'>右扫冰</option-btn>
     <!-- 文字图片特效 -->
@@ -44,8 +48,7 @@ export default {
     return {
       hasBrush: 0,          // 点击刷过次数，超过3次不用触发更加顺滑
       beginMove: '',        // 从哪个点开始计算距离， 默认2 / 3 Height
-      domain: '',
-      topestDistance: -630, // 终 点 实际位移
+      topestDistance: -630, // 终点实际位移
       topest: -630,       // 终 点
       score: 0,           // 距离分数
       binghu: '',         // 冰壶对象
@@ -81,13 +84,12 @@ export default {
     this.peopleImg2 = new Image()
     this.brushImage = new Image()
     this.meter = new Image()
-    this.domain = location.port.indexOf('8888') < 0 ? '/binghutiaozhan' : ''
-    this.image.src = this.domain + '/static/images/binghu.png'
-    this.brushImage.src = this.domain + '/static/images/brush.png'
+    this.image.src = this.$domain + '/static/images/binghu.png'
+    this.brushImage.src = this.$domain + '/static/images/brush.png'
 
-    this.peopleImg1.src = this.domain + '/static/images/people2.jpg'
-    this.peopleImg2.src = this.domain + '/static/images/people.jpg'
-    this.meter.src = this.domain + '/static/images/meter.jpg'
+    this.peopleImg1.src = this.$domain + '/static/images/people2.jpg'
+    this.peopleImg2.src = this.$domain + '/static/images/people.jpg'
+    this.meter.src = this.$domain + '/static/images/meter.jpg'
   },
   methods: {
     run () {
@@ -116,6 +118,9 @@ export default {
     },
 
     shot (val) {
+      if (this.status) {
+        return
+      }
       this.status = val
       this.binghu.stop = false
       this.fireTextTip('go')
@@ -128,9 +133,6 @@ export default {
         let ctx = this.context
         // 开始剪切x ,开始剪切y,被剪切宽度,被剪切高度,画布上x坐标,画布上y坐标,图像的宽度,图像的高度
         ctx.drawImage(this.brushImage, 0, 0, 115, 51, brush.posX - brush.width / 2, 300, brush.width, brush.height)
-        // ctx.restore()
-        // ctx.fillStyle = '#444'
-        // ctx.fillRect(brush.posX - brush.width / 2, 300, brush.width, brush.height)
       }
     },
 
@@ -188,29 +190,23 @@ export default {
           this.binghu.stop = true
         }
       }
-      this.binghu.horSpeed = this.binghu.horSpeed + this.binghu.horAccSpeed
-      this.binghu.horSpeed = this.binghu.horSpeed > 0.5 ? 0.5 : (this.binghu.horSpeed < -0.5 ? -0.5 : this.binghu.horSpeed)
-      this.binghu.posx = this.binghu.posx + this.binghu.horSpeed
-      let follow = this.binghu.getFollowerPos(this.binghu.horSpeed, this.speed / this.speedFactor)
+      if (this.status) {
+        this.binghu.horSpeed = this.binghu.horSpeed + this.binghu.horAccSpeed
+        this.binghu.horSpeed = this.binghu.horSpeed > 0.5 ? 0.5 : (this.binghu.horSpeed < -0.5 ? -0.5 : this.binghu.horSpeed)
+        this.binghu.posx = this.binghu.posx + this.binghu.horSpeed
+        let follow = this.binghu.getFollowerPos(this.binghu.horSpeed, this.speed / this.speedFactor)
+
+        ctx.beginPath()
+        ctx.moveTo(follow.x, follow.y)
+        ctx.lineTo(follow.x1, follow.y1)
+        ctx.lineTo(follow.x2, follow.y2)
+        ctx.closePath()
+        ctx.fillStyle = '#d35155'
+        ctx.fill()
+      }
       // 开始剪切x ,开始剪切y,被剪切宽度,被剪切高度,画布上x坐标,画布上y坐标,图像的宽度,图像的高度
-      // ctx.translate(window.innerWidth / 2, 0)
-      // ctx.rotate(20 * Math.PI / 180)
       ctx.drawImage(this.image, 0, 0, 162, 160, binghu.posx - binghu.R / 1.5, binghu.posy - binghu.R / 1.5, binghu.R * 2 / 1.5, binghu.R * 2 / 1.5)
       ctx.restore()
-      // ctx.beginPath()
-      // ctx.strokeStyle = '#444'
-      // ctx.lineWidth = 10
-      // ctx.arc(this.binghu.posx, this.binghu.posy, this.binghu.radius, 0, 2 * Math.PI)
-      // ctx.stroke()
-      // ctx.beginPath()
-      // ctx.lineWidth = 1
-      ctx.beginPath()
-      ctx.moveTo(follow.x, follow.y)
-      ctx.lineTo(follow.x1, follow.y1)
-      ctx.lineTo(follow.x2, follow.y2)
-      ctx.closePath()
-      ctx.fillStyle = '#d35155'
-      ctx.fill()
     },
 
     drawBg () {
@@ -317,7 +313,12 @@ export default {
       this.brush.addCount(dir)
     },
 
-     // 获取速度
+    // 获取偏移移动角度, 收敛值是振幅  / 0.5
+    getRotate (val, cycle) {
+      this.binghu.horSpeed = val / cycle * 0.5
+    },
+
+    // 获取速度
     getJourney (val) {
       if (this.status === 1) {
         this.speed = val

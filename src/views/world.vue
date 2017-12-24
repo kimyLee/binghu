@@ -5,15 +5,26 @@
     <div class="score-panel">
       <div class="score-box">
         <div class="box-item" style="border-bottom: 1px solid #ccc;">离靶心</div>
-        <div class="box-item num">{{score}}m</div> 
+        <div class="box-item num">{{score}}m</div>
       </div>
       <!-- 排行榜 -->
       <div class="ranking">排行榜</div>
-    
     </div>
+
     <power-line ref="powerLine" @returnSpeed="getJourney" @changeStatus="shot"></power-line>
     <option-btn  @click="handleDirect('left')">左扫冰</option-btn>
-    <option-btn @click="handleDirect('right')" side='right'>右扫冰</option-btn>
+    <option-btn  @click="handleDirect('right')" side='right'>右扫冰</option-btn>
+    <!-- 文字图片特效 -->
+    <transition name="fade">
+      <div class="text-effect" v-show="showTextEffect === 'go'">
+        GO!
+      </div>
+    </transition>
+    <transition name="fade">
+       <div class="text-effect-img" v-show="showTextEffect === 'moreSmooth'">
+        <img :src="'/static/images/moreSmooth.png' | autoPre" />
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -31,6 +42,7 @@ export default {
   },
   data () {
     return {
+      hasBrush: 0,          // 点击刷过次数，超过3次不用触发更加顺滑
       beginMove: '',        // 从哪个点开始计算距离， 默认2 / 3 Height
       domain: '',
       topestDistance: -630, // 终 点 实际位移
@@ -56,7 +68,8 @@ export default {
       peopleImg1: '',        // 观众贴图对象1
       peopleImg2: '',        // 观众贴图对象2
       brushImage: '',       // 刷子贴图对象
-      meter: ''             // 标尺贴图对象
+      meter: '',             // 标尺贴图对象
+      showTextEffect: ''     // 特效类型
     }
   },
   created () {
@@ -85,11 +98,6 @@ export default {
       window.requestAnimFrame(this.run)
     },
 
-    shot (val) {
-      this.status = val
-      this.binghu.stop = false
-    },
-
     // score 计算
     // 最高点减去冰壶起点， 收敛到50 , this.ratio = (this.binghu.begin - this.topest) / 50
     render () {
@@ -105,6 +113,12 @@ export default {
 
       this.score = (Math.abs(this.beginMove - this.topestDistance - this.bgWalk) / this.ratio).toFixed(1)
       this.judge()
+    },
+
+    shot (val) {
+      this.status = val
+      this.binghu.stop = false
+      this.fireTextTip('go')
     },
 
     drawBrush () {
@@ -287,7 +301,6 @@ export default {
       this.bgWalk = 0
       this.topest = this.topestDistance
       this.$refs.powerLine.reset()
-      // this.run()
     },
 
     // 左右按钮点击事件
@@ -295,10 +308,13 @@ export default {
       if (this.status !== 1) {
         return
       }
+
+      this.hasBrush === 3 && this.fireTextTip('moreSmooth')
+      this.hasBrush <= 3 && this.hasBrush++
+
       this.$refs.powerLine.slowPowerDecrease()
       this.binghu.horAccSpeed = dir ? (dir === 'left' ? -0.05 : 0.05) : 0
       this.brush.addCount(dir)
-      // this.binghu.horSpeed = dir ? (dir === 'left' ? -0.5 : 0.5) : 0
     },
 
      // 获取速度
@@ -306,20 +322,24 @@ export default {
       if (this.status === 1) {
         this.speed = val
       }
+    },
+
+    // 触发文字图片特效
+    fireTextTip (val) {
+      this.showTextEffect = val
+      setTimeout(() => {
+        this.showTextEffect = false
+      }, 500)
     }
   },
   mounted () {
     this.$nextTick(() => {
-      // requestAnimFrame 兼容
-      // 执行逻辑
-      // 插入画布
       this.Width = window.innerWidth             // 屏幕宽度
       this.Height = window.innerHeight           // 屏幕高度
       this.beginMove = 2 / 3 * this.Height       // 开始滑动
       this.ratio = (this.beginMove - this.topestDistance) / 50
       let str = '<canvas id="canvas" width=' + this.Width + '; height=' + this.Height + '>Sorry! you的浏览器不支持canvas</canvas>'
       document.getElementById('stage').innerHTML = str
-      // 角色图片
       // 全局对象
       this.canvas = document.getElementById('canvas')
       this.context = this.canvas.getContext('2d')
@@ -392,6 +412,41 @@ export default {
           line-height: 3.3rem;
           box-shadow: 0px 2px 0px 2px #a11c20;
         }
+    }
+
+    .text-effect {
+      position: fixed;
+      z-index: 999;
+      width: 100%;
+      height: 30rem;
+      text-align: center;
+      top: 50%;
+      margin-top: -15rem;
+      line-height: 30rem;
+      color: #d35155;
+      font-style: italic;
+      font-size: 3.2rem;
+    }
+    .text-effect-img {
+      position: fixed;
+      z-index: 999;
+      width: 100%;
+      height: 20rem;
+      text-align: center;
+      top: 45%;
+      margin-top: -10rem;  
+      img {
+        display: inline-block;
+        height: 100%;
+      }  
+    }
+    .fade-enter-active, .fade-leave-active {
+      transform: scale(1.2);
+      transition: transform .5s, opacity .5s;
+    }
+    .fade-enter, .fade-leave-to {
+      transform: scale(1);
+      opacity: 0;
     }
   }
 </style>

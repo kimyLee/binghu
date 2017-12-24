@@ -3,6 +3,10 @@
     <!-- <button @click="slowPowerDecrease" class="testBtn">click</button> -->
     <!-- <button @click="shot" class="shotBtn">shot</button> -->
     <!-- 画三个圆，分别构造圆环， 圆形按钮 -->
+    <!-- 移动的三角形 -->
+    <div class = "direction-icon">
+      <img :src="'/static/images/follower.png' | autoPre">
+    </div>
     <div class="outer-cycle"></div>
     <div class="middle-cycle"></div>
     <div class="inner-cycle">
@@ -29,7 +33,7 @@ export default {
       clientWidth: 0,             // 屏幕宽度
       progress: 0,                // 力度， 0-100
       PowerIncrease: 1,           // 力度增强还是衰弱 1 / -1
-      PowerIncreaseSpeed: 1,      // 力度摇摆增减速率
+      PowerIncreaseSpeed: 1.5,      // 力度摇摆增减速率
       PowerDecreaseTime: 50,      // 力度衰减时间间隔
       PowerDecreaseStep: 0.5,      // 力度衰减单位大小
       decreaseTimer: '',              // 力度衰减重复进行计时器
@@ -67,7 +71,6 @@ export default {
         this.progress = 0
       }
       if (this.status === 0) {
-        // window.setTimeout(this.swingPower, 16)
         window.requestAnimFrame(this.swingPower)
       }
     },
@@ -112,7 +115,7 @@ export default {
       this.progress = 0
       this.$emit('returnSpeed', this.progress)
       this.PowerIncrease = 1
-      this.PowerIncreaseSpeed = 1
+      this.PowerIncreaseSpeed = 1.5
       this.PowerDecreaseTime = 50
       this.init()
     }
@@ -136,8 +139,10 @@ export default {
       z-index: 99;
       
       .inner-svg {
-        transform: rotate(30deg);
-      transform-origin:50% 50%;
+         transform-origin: center;
+          transform-box: fill-box;
+         transform: rotate(30deg);
+     
       }
     }
     .outer-cycle {
@@ -216,12 +221,13 @@ export default {
       border: none;
       transform: translateY(50%) translateX(-50%) ;
     }
-    // .stopBtn {
-    //   position: absolute;
-    //   bottom: 0;
-    //   left: 60px;
-    // }
-    
-    
+    // 方向键
+    .direction-icon {
+      position: absolute;
+      top: -2rem;
+      img {
+        width: 2rem
+      }
+    }
   }
 </style>

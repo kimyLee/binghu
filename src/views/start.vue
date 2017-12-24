@@ -1,24 +1,57 @@
 <template>
   <div class="start-page">
-    <!-- logo 和 游戏规则 -->
-    <div class="logo">
-      <img :src="'/static/images/logo.png' | autoPre" />
+    <!-- loading -->
+    <div class="loading" v-show="loading">
+       <svg class="loading-cycle" style="margin-top: -3rem;" width="80" height="30" viewBox="0 0 120 30" fill="#d35155">
+          <circle cx="15" cy="15" r="13.748">
+              <animate attributeName="r" from="15" to="15" begin="0s" dur="0.8s" values="15;9;15" calcMode="linear" repeatCount="indefinite"></animate>
+              <animate attributeName="fill-opacity" from="1" to="1" begin="0s" dur="0.8s" values="1;.5;1" calcMode="linear" repeatCount="indefinite"></animate>
+          </circle>
+          <circle cx="60" cy="15" r="10.252" fill-opacity="0.3">
+              <animate attributeName="r" from="9" to="9" begin="0s" dur="0.8s" values="9;15;9" calcMode="linear" repeatCount="indefinite"></animate>
+              <animate attributeName="fill-opacity" from="0.5" to="0.5" begin="0s" dur="0.8s" values=".5;1;.5" calcMode="linear" repeatCount="indefinite"></animate>
+          </circle>
+          <circle cx="105" cy="15" r="13.748">
+              <animate attributeName="r" from="15" to="15" begin="0s" dur="0.8s" values="15;9;15" calcMode="linear" repeatCount="indefinite"></animate>
+              <animate attributeName="fill-opacity" from="1" to="1" begin="0s" dur="0.8s" values="1;.5;1" calcMode="linear" repeatCount="indefinite"></animate>
+          </circle>
+      </svg>
     </div>
-    <div class="game-rule" @click="seeRule=true">
-      <img :src="'/static/images/rule.png' | autoPre" />
+    <!-- 预加载 -->
+    <div class="loading" v-show="curProgress < 100">
+      <div class="loading-cycle">
+        <svg :width="60" :height="60" class="loading-svg">
+        <circle :cx="30" :cy="30" :r="20" stroke-width="10" stroke="#fed744" fill="none"></circle>
+        <circle :cx="30" :cy="30" :r="20" stroke-width="10" stroke="#d35155" fill="none"  :stroke-dasharray="circleDasharray"></circle>
+        </svg>
+        <br>
+        {{curProgress}}%
+      </div>  
     </div>
+    <!-- 主页面 -->
+    <div v-show="curProgress >= 100">
+      <!-- logo 和 游戏规则 -->
+      <div class="logo">
+        <img :src="'/static/images/logo.png' | autoPre" />
+      </div>
+      <div class="game-rule" @click="seeRule=true">
+        <img :src="'/static/images/rule.png' | autoPre" />
+      </div>
 
-    <div class="bg-box">
-      <img class="img-bg" :src="'/static/images/homeBg.png' | autoPre" />
-    </div>
-    <!-- 开始游戏按钮 -->
-    <div class="btn-field">
-      <span class="start-btn"  @click="startGame"></span>
-    </div>
-    <!-- 游戏协议 -->
-    <div class="game-protocol">
-      <input type="checkbox" class="game-checkbox" v-model="hasCheck"/>
-      <button class="game-protocol-btn" @click="seeProtocol=true">查看游戏声明</button>
+      <div class="bg-box">
+        <img class="img-bg" :src="'/static/images/homeBg.png' | autoPre" />
+      </div>
+      <!-- 开始游戏按钮 -->
+      <div class="btn-field">
+        <span class="start-btn"  @click="startGame">
+          <img :src="'/static/images/btn.png' | autoPre"/>
+        </span>
+      </div>
+      <!-- 游戏协议 -->
+      <div class="game-protocol">
+        <input type="checkbox" class="game-checkbox" v-model="hasCheck"/>
+        <button class="game-protocol-btn" @click="seeProtocol=true">查看游戏声明</button>
+      </div>
     </div>
 
     <!-- 游戏规则说明 -->
@@ -48,18 +81,117 @@ export default {
   },
   data () {
     return {
-      hasCheck: false,
-      seeRule: false,
-      seeProtocol: false
+      loading: false,                     // 是否正在加载
+      afterLoadNum: 0,                    // 后台加载是否完成
+      circleDasharray: 0,
+      curProgress: 0,                     // 当前用来计算圆环进度的参数，会预先赋值30%
+      progress: 0,                        // 实际进度
+      notLoadImgCount: 0,
+      imgToalCount: 0,
+      hasCheck: false,                    // 是否勾选游戏协议
+      seeRule: false,                     // 是否打开游戏规则弹窗
+      seeProtocol: false                  // 是否打开游戏声明弹窗
+    }
+  },
+  created () {
+    this.preLoad()
+  },
+
+  mounted () {
+    this.$nextTick(() => {
+      this.transionTarget()
+    })
+  },
+
+  beforeRouteLeave (to, from, next) {
+    let count = 0
+    let cycleCheck = () => {
+      if (this.afterLoadNum > 0 && count < 10) {
+        count++
+        this.loading = true
+        setTimeout(cycleCheck, 100)
+      } else {
+        this.loading = false
+        next()
+      }
+    }
+    cycleCheck()
+  },
+
+  watch: {
+    'notLoadImgCount' () {
+      this.progress = 100 - Math.round(this.notLoadImgCount / this.imgToalCount * 100)
     }
   },
   methods: {
+    // 顺滑过渡 progress ，会通过计算属性模拟transition到达
+    transionTarget () {
+      if (this.curProgress >= 100) {
+        this.afterLoad()
+        return
+      }
+      let time = this.curProgress < this.progress ? 5 : 30
+      if (this.curProgress < Math.max(30, this.progress)) {
+        this.curProgress++
+      } else {
+        this.curProgress = Math.max(30, this.progress)
+      }
+      this.circleDasharray = Math.round(this.curProgress / 100 * 2 * Math.PI * 20) + ' 1069'
+      setTimeout(() => {
+        this.transionTarget()
+      }, time)
+    },
+
     startGame () {
       if (!this.hasCheck) {
         alert('请先阅读游戏声明')
         return
       }
       this.$router.push({name: 'word'})
+    },
+    // 预加载
+    preLoad () {
+      let imgs = [
+        this.$domain + '/static/images/logo.png',
+        this.$domain + '/static/images/rule.png',
+        this.$domain + '/static/images/homeBg.png',
+        this.$domain + '/static/images/game_rule.png',
+        this.$domain + '/static/images/shengming.png',
+        this.$domain + '/static/images/btn.png'
+      ]
+      this.imgToalCount = imgs.length
+      this.notLoadImgCount = imgs.length
+      imgs.forEach(e => {
+        let img = new Image()
+        img.src = e
+        img.onload = () => {
+          this.notLoadImgCount--
+        }
+        img.onerror = () => {
+          this.notLoadImgCount--
+        }
+      })
+    },
+    afterLoad () {
+      let imgs = [
+        this.$domain + '/static/images/binghu.png',
+        this.$domain + '/static/images/brush.png',
+        this.$domain + '/static/images/people.jpg',
+        this.$domain + '/static/images/people2.jpg',
+        this.$domain + '/static/images/meter.jpg',
+        this.$domain + '/static/images/test.jpg'
+      ]
+      this.afterLoadNum = imgs.length
+      imgs.forEach(e => {
+        let img = new Image()
+        img.src = e
+        img.onload = () => {
+          this.afterLoadNum--
+        }
+        img.onerror = () => {
+          this.afterLoadNum--
+        }
+      })
     }
   }
 }
@@ -69,6 +201,30 @@ export default {
   .start-page {
     background: #fff;
     position: relative;
+    .loading {
+      position: fixed;
+      background: #fff;
+      width: 100%;
+      height: 100%;
+      left: 0;
+      top: 0;
+      z-index: 999;
+      text-align: center;
+      .loading-cycle {
+        position: relative;
+        top: 50%;
+        margin-top: -1.5rem;
+      }
+      .loading-svg {
+        display: inline-block;
+        transform-origin: center;
+        transform-box: fill-box;
+        transform: rotate(-90deg);
+        cycle {
+          transition: all .4s ease;
+        }
+      }
+    }
     .logo {
       position: absolute;
       top: 1.8rem;
@@ -103,8 +259,11 @@ export default {
         display: inline-block;
         width: 23.5rem;
         height: 7rem;
-        background: url('../assets/btn.png') no-repeat;
-        background-size: 100%;
+        img {
+          width: 23.5rem;
+        }
+        // background: url('../assets/btn.png') no-repeat;
+        // background-size: 100%;
       }
     }
     .game-protocol {

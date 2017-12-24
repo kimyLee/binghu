@@ -34,7 +34,22 @@ if (/iP(ad|hone|od).*OS 6/.test(window.navigator.userAgent) // iOS6 is buggy
 
 window.requestAnimFrame = window.requestAnimationFrame
 
+/* eslint-disable */
+!(function(doc, win) {
+  var docEle = doc.documentElement,
+  evt = "onorientationchange" in window ? "orientationchange" : "resize",
+  fn = function() {
+      var width = docEle.clientWidth;
+      width && (docEle.style.fontSize = 10 * (width / 320) + "px");
+  };
+
+  win.addEventListener(evt, fn, false);
+  doc.addEventListener("DOMContentLoaded", fn, false);
+}(document, window))
+
+// Vue配置
 Vue.config.productionTip = false
+Vue.prototype.$domain = location.port.indexOf('8888') < 0 ? '/binghutiaozhan' : ''
 
 Vue.filter('autoPre', (url) => {
   if (location.port.indexOf('8888') < 0) {

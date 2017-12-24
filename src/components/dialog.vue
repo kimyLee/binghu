@@ -128,7 +128,7 @@ export default {
         position: absolute;
         bottom: -8.1rem;
         left: 0;
-        right: 3.9rem;
+        right: 3.8rem;
         background: #fff;
         height: 8.2rem;
       }

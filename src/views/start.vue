@@ -50,8 +50,8 @@
       <!-- 游戏协议 -->
       <div class="game-protocol">
         <label>
-          <input type="checkbox" class="game-checkbox" v-model="hasCheck"/>
-          <span></span>
+          <input type="checkbox" class="game-checkbox" v-model="hasCheck" @change="setHasCheck"/>
+          <span class="checkbox-select">{{hasCheck ? '&#10003;': ''}}</span>
         </label>
         <span class="game-protocol-btn" @click="seeProtocol=true">查看游戏声明</span>
       </div>
@@ -98,6 +98,7 @@ export default {
   },
   created () {
     this.preLoad()
+    this.hasCheck = !!(localStorage.getItem('hasCheck') - 0)
   },
 
   mounted () {
@@ -145,6 +146,11 @@ export default {
       }, time)
     },
 
+    // 存储状态
+    setHasCheck () {
+      localStorage.setItem('hasCheck', this.hasCheck ? 1 : 0)
+    },
+
     startGame () {
       if (!this.hasCheck) {
         alert('请先阅读游戏声明')
@@ -181,8 +187,8 @@ export default {
         this.$domain + '/static/images/brush.png',
         this.$domain + '/static/images/people.jpg',
         this.$domain + '/static/images/people2.jpg',
-        this.$domain + '/static/images/meter.jpg',
-        this.$domain + '/static/images/test.jpg'
+        this.$domain + '/static/images/meter.jpg'
+        // this.$domain + '/static/images/test.jpg'
       ]
       this.afterLoadNum = imgs.length
       imgs.forEach(e => {
@@ -295,7 +301,9 @@ export default {
       }
 
       label input[type='checkbox']:checked + span {
-        background: #f00;
+        font-size: 2.4rem;
+        line-height: 2.3rem;
+        // background: #f00;
       }
 
       .game-protocol-btn {

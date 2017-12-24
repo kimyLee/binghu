@@ -182,9 +182,11 @@ export default {
 
       ctx.beginPath()
       ctx.strokeStyle = '#f1db8d'
+      ctx.fillStyle = '#fff'
       ctx.lineWidth = 10
       ctx.arc(this.Width / 2, this.topest, 70, 0, 2 * Math.PI)
       ctx.stroke()
+      ctx.fill()
 
       ctx.beginPath()
       ctx.strokeStyle = '#84d0fd'
@@ -254,7 +256,7 @@ export default {
       ctx.fillStyle = '#ccc'
       // cxt.fillRect(0, 0, this.Width, this.Height)
 
-      let numX = (this.Width - this.roadWidth) / 2 - 38      // 数字横坐标
+      let numX = (this.Width - this.roadWidth) / 2 - 28      // 数字横坐标
       let beginY = this.beginMove
       let lineHeight = (beginY - this.topestDistance) / 25
       // let topHeight = 14
@@ -263,43 +265,33 @@ export default {
       ctx.strokeStyle = '#ccc'
       ctx.fillStyle = '#ccc'
       ctx.beginPath()
+      // 直接画画不图片会卡死
       // 开始剪切x ,开始剪切y,被剪切宽度,被剪切高度,画布上x坐标,画布上y坐标,图像的宽度,图像的高度
-      ctx.drawImage(this.meter, 0, 0, 334, 1539, numX, this.topestDistance + this.bgWalk + lineHeight * 2, 200, beginY - this.topestDistance - lineHeight * 5)
-      // for (let i = 0; i <= 23; i++) {
-        // console.log('hello')
-        // if (i < 23) {
-        //   ctx.moveTo(numX, beginY - i * lineHeight + this.bgWalk - topHeight)
-        //   ctx.lineTo(numX + this.roadWidth + 40, beginY - i * lineHeight + this.bgWalk - topHeight)
-        //   ctx.stroke()
-        // }
-        // ctx.moveTo(numX, beginY + bottomHeight - i * lineHeight + this.bgWalk)
-        // ctx.lineTo(numX + this.roadWidth + 40, beginY + bottomHeight - i * lineHeight + this.bgWalk)
-        // ctx.stroke()
-        // ctx.fillText(50 - i * 2 + 'm', numX, beginY - lineHeight * i + this.bgWalk)
-      // }
+      ctx.drawImage(this.meter, 0, 0, 334, 1539, numX, this.topestDistance + this.bgWalk + lineHeight, this.roadWidth * 2 - 35, beginY - this.topestDistance - lineHeight * 4)
 
+      let outterLineWidth = 20
+      let innerLineWidth = 10
       ctx.beginPath()
       ctx.strokeStyle = '#ccc'
-      ctx.lineWidth = 50
-      ctx.moveTo(this.people.width, 0)
-      ctx.lineTo(this.people.width, this.Height)
+      ctx.lineWidth = outterLineWidth
+      ctx.moveTo(this.people.width + outterLineWidth / 2, 0)
+      ctx.lineTo(this.people.width + outterLineWidth / 2, this.Height)
       ctx.closePath()
       ctx.stroke()
 
       ctx.beginPath()
       ctx.strokeStyle = '#ccc'
-      ctx.lineWidth = 30
-      ctx.moveTo(this.Width - this.people.width - 10, 0)
-      ctx.lineTo(this.Width - this.people.width - 10, this.Height)
+      ctx.lineWidth = outterLineWidth
+      ctx.moveTo(this.Width - this.people.width - outterLineWidth / 2, 0)
+      ctx.lineTo(this.Width - this.people.width - outterLineWidth / 2, this.Height)
       ctx.closePath()
       ctx.stroke()
 
       ctx.beginPath()
       ctx.strokeStyle = '#eee'
-      // ctx.lineWidth = numX - this.people.width - 10
-      ctx.lineWidth = 10
-      ctx.moveTo(this.people.width + 20, 0)
-      ctx.lineTo(this.people.width + 20, this.Height)
+      ctx.lineWidth = innerLineWidth
+      ctx.moveTo(this.people.width + outterLineWidth + innerLineWidth / 2, 0)
+      ctx.lineTo(this.people.width + outterLineWidth + innerLineWidth / 2, this.Height)
       ctx.closePath()
       ctx.stroke()
 
@@ -307,8 +299,8 @@ export default {
       ctx.strokeStyle = '#eee'
       // ctx.lineWidth = numX - this.people.width - 50
       ctx.lineWidth = 10
-      ctx.moveTo(this.Width - this.people.width - 20, 0)
-      ctx.lineTo(this.Width - this.people.width - 20, this.Height)
+      ctx.moveTo(this.Width - this.people.width - outterLineWidth - innerLineWidth / 2, 0)
+      ctx.lineTo(this.Width - this.people.width - outterLineWidth - innerLineWidth / 2, this.Height)
       ctx.closePath()
       ctx.stroke()
     },
@@ -342,8 +334,8 @@ export default {
         return
       }
 
-      this.hasBrush === 3 && this.fireTextTip('moreSmooth')
-      this.hasBrush <= 3 && this.hasBrush++
+      this.hasBrush === 5 && this.fireTextTip('moreSmooth')
+      this.hasBrush <= 5 && this.hasBrush++
 
       this.$refs.powerLine.slowPowerDecrease()
       this.binghu.horAccSpeed = dir ? (dir === 'left' ? -0.05 : 0.05) : 0

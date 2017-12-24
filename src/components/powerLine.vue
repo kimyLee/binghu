@@ -7,10 +7,10 @@
       <!-- <img :src="'/static/images/follower.png' | autoPre"> -->
     </div>
     <div class="outer-cycle"></div>
-    <div class="inner-cycle">
+    <div class="inner-cycle" @click="shot">
       <span class="inner-cycle-icon" ></span><br>
       <span class="inner-cycle-line" ></span><br>
-      <span class="inner-cycle-text" @click="shot" :class="{'animate-text': addTip}">{{btnText}}</span>
+      <span class="inner-cycle-text"  :class="{'animate-text': addTip}">{{btnText}}</span>
     </div>
     <svg :width="clientWidth * 0.4" :height="clientWidth * 0.4" class="my-svg">
       <circle :cx="clientWidth * 0.2" :cy="clientWidth * 0.36" :r="clientWidth * 0.2 - 20" stroke-width="15" stroke="#fed744" fill="none"></circle>
@@ -88,10 +88,10 @@ export default {
       })
       setTimeout(() => {
         this.handIn = false
-        this.$nextTick(() => {
+        setTimeout(() => {
           this.addFirstTip = false
-        })
-      }, 4000)
+        }, 300)
+      }, 2000)
     })
   },
   methods: {
@@ -100,15 +100,16 @@ export default {
 
       this.canvas = document.getElementById('floolwerCanvas')
       this.context = this.canvas.getContext('2d')
-      this.directBtn.x = this.canvas.width / 2 - this.directBtn.width / 2
       // 消除锯齿
-      // if (window.devicePixelRatio) {
-      //   this.canvas.style.width = this.canvas.width + 'px'
-      //   this.canvas.style.height = this.canvas.height + 'px'
-      //   this.canvas.height = this.canvas * window.devicePixelRatio
-      //   this.canvas.width = this.canvas * window.devicePixelRatio
-      //   this.context.scale(window.devicePixelRatio, window.devicePixelRatio)
-      // }
+      if (window.devicePixelRatio) {
+        this.canvas.style.width = this.canvas.width + 'px'
+        this.canvas.style.height = this.canvas.height + 'px'
+        this.canvas.height = this.canvas.height * window.devicePixelRatio
+        this.canvas.width = this.canvas.width * window.devicePixelRatio
+        this.context.scale(window.devicePixelRatio, window.devicePixelRatio)
+      } else {
+        window.devicePixelRatio = 1
+      }
     },
     // 摇摆选择力度
     swingPower () {
@@ -147,11 +148,10 @@ export default {
         directBtn.increase = 1
         directBtn.rotate = -directBtn.rotateCycle
       }
-
-      ctx.translate(canvas.width / 2, canvas.height * 0.7)
+      ctx.translate(canvas.width / 2 / window.devicePixelRatio, canvas.height * 0.7 / window.devicePixelRatio)
       ctx.rotate(directBtn.rotate * Math.PI / 180)
       // 开始剪切x, 开始剪切y, 被剪切宽度, 被剪切高度, 画布上x坐标, 画布上y坐标, 图像的宽度, 图像的高度
-      ctx.drawImage(this.followerImg, 0, 0, 35, 36, -directBtn.width / 2, -canvas.height * 0.7, 20, 20)
+      ctx.drawImage(this.followerImg, 0, 0, 35, 36, -directBtn.width / 2, -canvas.height * 0.7 / window.devicePixelRatio, 20, 20)
       ctx.restore()
     },
 
@@ -159,7 +159,7 @@ export default {
       switch (this.status) {
         // 当前动作：选择力度，下个动作：选择方向
         case 0:
-          // 为了按钮文本有过度效果
+          // 为了按钮文本有过度效果, 500ms css时间
           this.status = 3
           this.addTip = true
           setTimeout(() => {
@@ -198,6 +198,9 @@ export default {
     // 力度衰减
     decreasePower () {
       clearTimeout(this.decreaseTimer)
+      // if (this.status !== 1) {
+      //   return
+      // }
       this.progress = this.progress - this.PowerDecreaseStep
       this.$emit('returnSpeed', this.progress)
       if (this.progress <= 0) {
@@ -226,6 +229,7 @@ export default {
     },
     // 重置复位
     reset () {
+      clearTimeout(this.decreaseTimer)
       this.status = 0
       this.btnText = '选择力度'
       this.beforeStatus = 0
@@ -244,7 +248,7 @@ export default {
         increaseSpeed: 1,
         rotateCycle: 30
       }
-      this.init()
+      this.swingPower()
     }
   }
 }
@@ -271,7 +275,8 @@ export default {
       border-radius: 50%;
       transform: translateY(23%) ;
       #floolwerCanvas {
-
+        // width: 100%;
+        // height: 100%;
       }
     }
     .my-svg {
@@ -386,16 +391,16 @@ export default {
         margin-top: 1.2rem;
         margin-left: 0.7rem;
         &.w1{
-	          animation:ripple 2s 2;
-            animation-delay: .7s;
+	          animation:ripple 1s 1;
+            animation-delay: .5s;
         }
         &.w2{
-	          animation: ripple 2s 2;
+	          animation: ripple 1s 1;
              animation-delay: 1s;
         }
         &.w3{
-	          animation: ripple 2s 2;
-             animation-delay: 1.3s;
+	          animation: ripple 1s 1;
+             animation-delay: 1.5s;
         }
       }
     }

@@ -34,19 +34,19 @@
       <img slot="title" :src="'/static/images/rank.png' | autoPre" />
       <div class="ranking-section rank-head">
         <div class="name">用户昵称</div>
-        <div class="score">分数</div>
+        <div class="score" style="text-align: right">分数</div>
       </div>
       <div
         ref="wrapper"
         class="wrapper"
         @scrollToEnd="fetchData">
         <ul class="content">
-          <li v-for="item in data">
+          <li v-for="item in (rankData || data)" :key="item.Sort">
             <div class="ranking-section">
-              <span class="rank">{{ item.rank }}</span>
-              <img :src="item.avatar" class="avatar" />
-              <span class="name">{{ item.name }}</span>
-              <span class="score">{{ item.score }}</span>
+              <span class="rank">{{ item.Sort }}</span>
+              <img :src="item.UserLogo" class="avatar" />
+              <span class="name">{{ item.UserName }}</span>
+              <span class="score">{{ item.Integral }}</span>
           </div>
           </li>
         </ul>
@@ -55,20 +55,37 @@
       <div class="ranking-more">向上拉动查看更多排名</div>
     </my-dialog>
 
-    <my-dialog height="1" :open="showPoints" @closeDialog="showPoints=false" class="dialog points">
+    <my-dialog height="5" :open="showPoints" @closeDialog="closeShowPoint" class="dialog points" style="text-align: left;">
       <img slot="title" :src="'/static/images/victory.png' | autoPre"/>
-      <div class="results-content">
-        <p class="notice">达到了<span class="num">999</span>分</p>
-        <p class="tip">每天只能有一次获得积分的机会</p>
-        <p class="tip">请明天再来吧</p>
+      <div class="results-content" style="padding: 0;">
+        <p class="notice">获得<span class="num">{{points}}分</span></p>
+        <p class="tip">总积分达到了{{baseinfo.point + points}}分</p>
+        <p class="tip">每天只能有一次获得积分的机会,请明天再来吧</p>
+      </div>
+    </my-dialog>
+
+    <!-- 已获取积分 -->
+    <my-dialog height="5" :open="showTotalPoints" @closeDialog="closeShowPoint" class="dialog points" style="text-align: left;">
+      <img slot="title" :src="'/static/images/victory.png' | autoPre"/>
+      <div class="results-content" style="padding: 0;">
+        <p class="tip">总积分达到了<span class="num">{{baseinfo.point}}</span>分</p>
+        <p class="tip">每天只能有一次获得积分的机会,请明天再来吧</p>
+      </div>
+    </my-dialog>
+
+    <my-dialog height="1" :open="msgTip" @closeDialog="msgTip=false" class="dialog">
+      <div class="results-content">       
+        <p class="tip"><b>网络错误</b></p>
+        <p class="tip"><b>错误信息：{{msgText}}</b></p>
+        <p class="tip">请刷新页面重试</p>
       </div>
     </my-dialog>
 
     <my-dialog :colseable="false" :height="success ? 21 : 16" :open="showResult" @closeDialog="showResult=false" class="dialog results">
         <img slot="title" :src="'/static/images/victory.png' | autoPre" v-show="success"/>
         <img slot="title" :src="'/static/images/failed.png' | autoPre" v-show="!success"/>
-        <div class="results-content">
-          <p class="notice">你距离靶心<span class="num"></span>9</span>M</p>
+        <div class="results-content" style="padding: 0; ">
+          <p class="notice">你距离靶心<span class="num">{{this.score}}</span>M</p>
           <p class="slogan">万宝路新红万产品全新升级</p>
           <ul class="attrs">
             <li>口味特点：</li>
@@ -77,10 +94,12 @@
             <li>劲还在，口感更顺</li>
             <li>焦油含量降至10毫克</li>
           </ul>
-          <p class="results-btn" v-show="success" @click="handleBtnClick('points')">
+          <div style="text-align: center;">
+            <span class="results-btn" v-show="success" @click="handleBtnClick('points')">
               已了解，立刻抽积分
-          </p>
-          <p class="results-btn" @click="handleBtnClick('continue')">再次挑战</p>
+            </span>
+            <span class="results-btn" @click="handleBtnClick('continue')">再次挑战</span>
+          </div>
         </div>
       </my-dialog>
   </div>
@@ -94,6 +113,7 @@ import Brush from '@/class/Brush'
 import People from '@/class/people'
 import myDialog from '@/components/dialog'
 import BScroll from 'better-scroll'
+import axios from 'axios'
 
 export default {
   name: 'world',
@@ -104,7 +124,9 @@ export default {
   },
   data () {
     return {
-      hasBrush: 0,            // 点击刷过次数，超过3次不用触发更加顺滑
+      points: 0,             // 获得积分
+      renderTimer: 0,         // 渲染函数计时器
+      hasBrush: 0,            // 点击刷过次数，超过5次不用触发更加顺滑
       beginMove: '',          // 从哪个点开始计算距离， 默认2 / 3 Height
       domain: '',
       topestDistance: -630,   // 终 点 实际位移
@@ -139,37 +161,46 @@ export default {
       scroll: null,
       beforeScroll: true,
       data: [
-        { rank: 1, avatar: '/static/images/binghu.png', name: 'xxx', score: 199 },
-        { rank: 2, avatar: '/static/images/binghu.png', name: 'yyy', score: 198 },
-        { rank: 3, avatar: '/static/images/binghu.png', name: 'zzz', score: 197 },
-        { rank: 4, avatar: '/static/images/binghu.png', name: 'www', score: 196 },
-        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
-        { rank: 1, avatar: '/static/images/binghu.png', name: 'xxx', score: 199 },
-        { rank: 2, avatar: '/static/images/binghu.png', name: 'yyy', score: 198 },
-        { rank: 3, avatar: '/static/images/binghu.png', name: 'zzz', score: 197 },
-        { rank: 4, avatar: '/static/images/binghu.png', name: 'www', score: 196 },
-        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
-        { rank: 1, avatar: '/static/images/binghu.png', name: 'xxx', score: 199 },
-        { rank: 2, avatar: '/static/images/binghu.png', name: 'yyy', score: 198 },
-        { rank: 3, avatar: '/static/images/binghu.png', name: 'zzz', score: 197 },
-        { rank: 4, avatar: '/static/images/binghu.png', name: 'www', score: 196 },
-        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
-        { rank: 1, avatar: '/static/images/binghu.png', name: 'xxx', score: 199 },
-        { rank: 2, avatar: '/static/images/binghu.png', name: 'yyy', score: 198 },
-        { rank: 3, avatar: '/static/images/binghu.png', name: 'zzz', score: 197 },
-        { rank: 4, avatar: '/static/images/binghu.png', name: 'www', score: 196 },
-        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
-        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
-        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
-        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
-        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
-        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 },
-        { rank: 5, avatar: '/static/images/binghu.png', name: 'ttt', score: 195 }
+        { Sort: 1, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'xxx', Integral: 199 },
+        { Sort: 2, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'yyy', Integral: 198 },
+        { Sort: 3, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'zzz', Integral: 197 },
+        { Sort: 4, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'www', Integral: 196 },
+        { Sort: 5, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'ttt', Integral: 195 },
+        { Sort: 6, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'xxx', Integral: 199 },
+        { Sort: 7, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'yyy', Integral: 198 },
+        { Sort: 8, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'zzz', Integral: 197 },
+        { Sort: 9, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'www', Integral: 196 },
+        { Sort: 10, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'ttt', Integral: 195 },
+        { Sort: 11, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'xxx', Integral: 199 },
+        { Sort: 12, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'yyy', Integral: 198 },
+        { Sort: 13, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'zzz', Integral: 197 },
+        { Sort: 14, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'www', Integral: 196 },
+        { Sort: 15, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'ttt', Integral: 195 },
+        { Sort: 16, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'xxx', Integral: 199 },
+        { Sort: 17, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'yyy', Integral: 198 },
+        { Sort: 18, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'zzz', Integral: 197 },
+        { Sort: 19, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'www', Integral: 196 },
+        { Sort: 20, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'ttt', Integral: 195 },
+        { Sort: 21, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'ttt', Integral: 195 },
+        { Sort: 22, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'ttt', Integral: 195 },
+        { Sort: 23, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'ttt', Integral: 195 },
+        { Sort: 24, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'ttt', Integral: 195 },
+        { Sort: 25, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'ttt', Integral: 195 },
+        { Sort: 26, UserLogo: '/binghutiaozhan/static/images/binghu.png', UserName: 'ttt', Integral: 195 }
       ],
 
+      msgText: '',                         // 错误信息
+      msgTip: false,                       // 系统弹窗
       showResult: false,
       showPoints: false,
-      success: false
+      showTotalPoints: false,
+      success: false,
+
+      baseinfo: {                           // 用户信息
+        points: '',
+        hasGetPoint: false
+      },
+      rankData: ''                         // 排行榜数据
     }
   },
 
@@ -183,7 +214,7 @@ export default {
           this.scroll.on('scrollEnd', () => {
             // 滚动到底部
             if (this.scroll.y <= (this.scroll.maxScrollY + 50)) {
-              this.fetchData()
+              // this.fetchData()
             }
           })
         }
@@ -200,19 +231,78 @@ export default {
     this.peopleImg2 = new Image()
     this.brushImage = new Image()
     this.meter = new Image()
-    this.fetchData()
+    // this.fetchData()
 
-    this.domain = location.port.indexOf('8888') < 0 ? '/binghutiaozhan' : ''
-    this.image.src = this.domain + '/static/images/binghu.png'
-    this.brushImage.src = this.domain + '/static/images/brush.png'
+    this.image.src = this.$domain + '/static/images/binghu.png'
+    this.brushImage.src = this.$domain + '/static/images/brush.png'
     this.peopleImg1.src = this.$domain + '/static/images/people2.jpg'
     this.peopleImg2.src = this.$domain + '/static/images/people.jpg'
     this.meter.src = this.$domain + '/static/images/meter.jpg'
   },
 
   methods: {
+    // 获取用户信息和排行榜数据
     fetchData () {
+      axios.post('/Index/SystemStatue')
+        .then((res) => {
+          if (res.Code === 1) {
+            let data = res.Data
+            this.baseinfo = {
+              points: data.Integral || '',
+              hasGetPoint: !!data.UserStatue
+            }
+            this.rankData = data.RankingList
+          } else {
+            return Promise.reject(res)
+          }
+        })
+        .catch((error) => {
+          this.msgText = error.msg || '未知错误'
+          this.msgTip = true
+        })
       console.log('fetching data...')
+    },
+    // 上传成绩距离 todo: 如果不能获得积分的原因有两个，1 距离不到，2 今天已获得，需要返回失败类型
+    pushScore (distance) {
+      axios.post('/Index/SaveUserInfo', {
+        Distance: distance
+      })
+        .then((res) => {
+          if (res.Code === 1) {
+            let data = res.Data
+            let success = data.Statue
+            if (!success) {
+              return Promise.reject(new Error({msg: data.Msg}))
+            }
+            // 如果今天已获取积分
+            if (this.baseinfo.hasGetPoint || !data.IsGetIntegral) {
+              this.showTotalPoints = true
+            } else {
+              // 能获得积分，打开获得积分页
+              this.point = data.GetedIntegral
+              this.showResult = false
+              this.showPoints = true
+            }
+          } else {
+            return Promise.reject(res)
+          }
+        })
+        .catch((error) => {
+          // console.log(error)
+          // this.showTotalPoints = true
+
+          // this.showResult = false
+          // this.showPoints = true
+
+          this.msgText = error.msg || '未知错误'
+          this.msgTip = true
+        })
+    },
+    // 关闭分数页
+    closeShowPoint () {
+      this.showPoints = false
+      this.showTotalPoints = false
+      this.reStart()
     },
 
     run () {
@@ -220,7 +310,7 @@ export default {
         return
       }
       this.render()
-      window.requestAnimFrame(this.run)
+      this.renderTimer = window.requestAnimFrame(this.run)
     },
 
     // score 计算
@@ -402,16 +492,24 @@ export default {
 
     gameOver () {
       this.status = 2
-      alert('离终点' + this.score + '米')
-      this.reStart()
+      if (this.score >= 10) {
+        this.success = false
+        this.showResult = true
+      } else {
+        this.success = true
+        this.showResult = true
+      }
     },
     reStart () {
+      this.hasBrush = 0
       this.speed = 0
       this.binghu.reset()
       this.status = 0
       this.bgWalk = 0
       this.topest = this.topestDistance
       this.$refs.powerLine.reset()
+      cancelAnimationFrame && cancelAnimationFrame(this.renderTimer)
+      this.run()
     },
 
     // 左右按钮点击事件
@@ -450,17 +548,22 @@ export default {
 
     // 打开排行榜
     openRanking () {
-      this.showRanking = true
+      if (this.status !== 1) {
+        this.showRanking = true
+      }
     },
 
     // 根据用户的选择进行对应的操作
     handleBtnClick (type) {
       if (type === 'points') {
+        this.showResult = false
+        this.pushScore(this.score)
+        // this.reStart()
         // 抽奖
       }
-
       if (type === 'continue') {
-        // 继续游戏
+        this.showResult = false
+        this.reStart()
       }
     }
   },
@@ -671,6 +774,7 @@ export default {
     padding: 0 2.5rem;
 
     .notice {
+      // display: inline-block;
       font-style: normal;
       text-align: center;
       font-size:26px;
@@ -679,7 +783,8 @@ export default {
     }
 
     .tip {
-      text-align: center;
+      // display: inline-block;
+      text-align: left;
       line-height: 1.8;
     }
 
@@ -699,13 +804,16 @@ export default {
     }
 
     .results-btn {
+      display: inline-block;
       text-align: center;
       color: #fff;
       background-image:url('/static/images/btn-bg.png');
-      background-size: cover;
+      background-size: 100% 100%;
+      width: 80%;
       margin-top: 1rem;
       height: 4rem;
       line-height: 4rem;
+      padding: 0;
     }
 
     .attrs {
@@ -722,6 +830,15 @@ export default {
     p {
       padding: 0;
       margin: 0;
+    }
+    .dialog-text {
+      padding: 0;
+    }
+  }
+  .results.dialog {
+    .dialog-container {
+      top: 50%;
+      transform: translateY(-50%);
     }
   }
 </style>

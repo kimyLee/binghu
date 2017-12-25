@@ -60,7 +60,7 @@
     <!-- 游戏规则说明 -->
     <my-dialog :open="seeRule" @closeDialog="seeRule = false" height="15">
       <img slot="title" :src="'/static/images/game_rule.png' | autoPre" />
-      <div class="results-content">
+      <div class="">
         1. 力度条不断变化，待力度合适时点击滑行，滑出冰壶<br>
         2. 冰壶滑行过程中，力度会不断衰减，冰壶速度也越来越慢，左右扫冰可降低力度衰减速率，同时冰壶向对应方向偏离<br>
         3. 当力度降至为零，冰壶停止运动，或者冰壶接触滑道两边时，游戏结束<br>
@@ -71,7 +71,7 @@
     <!-- 查看游戏声明 -->
     <my-dialog :open="seeProtocol" @closeDialog="seeProtocol = false" height="2">
        <img slot="title" :src="'/static/images/shengming.png' | autoPre" />
-        <div class="results-content">
+        <div class="">
           1. 本次积分只在活动期间有效<br>
           2. 活动方保留最终解释权
         </div>
@@ -191,7 +191,14 @@ export default {
         this.$domain + '/static/images/brush.png',
         this.$domain + '/static/images/people.jpg',
         this.$domain + '/static/images/people2.jpg',
-        this.$domain + '/static/images/meter.jpg'
+        this.$domain + '/static/images/follower.png',
+        this.$domain + '/static/images/meter.jpg',
+        this.$domain + '/static/images/btn-bg.png',
+        this.$domain + '/static/images/moreSmooth.png',
+        this.$domain + '/static/images/rank.png',
+        this.$domain + '/static/images/victory.png',
+        this.$domain + '/static/images/failed.png',
+        this.$domain + '/static/images/finger.png'
         // this.$domain + '/static/images/test.jpg'
       ]
       this.afterLoadNum = imgs.length

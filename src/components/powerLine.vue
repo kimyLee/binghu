@@ -34,6 +34,7 @@ export default {
   props: [],
   data () {
     return {
+      swingTimer: '',             // 摆动的动画对象
       status: 0,                  // 进度条状态， 0：来回变化， 1：衰减， 2：停止， 3： 选择方向, 4: 准备就绪，准备发射
       beforeStatus: 0,            // 暂停之前状态
       clientWidth: 0,             // 屏幕宽度
@@ -122,7 +123,7 @@ export default {
         this.progress = 0
       }
       if (this.status === 0) {
-        window.requestAnimFrame(this.swingPower)
+        this.swingTimer = window.requestAnimFrame(this.swingPower)
       }
     },
 
@@ -248,6 +249,7 @@ export default {
         increaseSpeed: 1,
         rotateCycle: 30
       }
+      cancelAnimationFrame && cancelAnimationFrame(this.swingTimer)
       this.swingPower()
     }
   }

@@ -148,7 +148,7 @@ export default {
       .dialog-content {
         position: relative;
         font-size: 1.4rem;
-        color: #999;
+        color: #555;
         z-index: 999;
         text-align: left;
         &.longText {
@@ -171,6 +171,8 @@ export default {
           position: absolute;
           top: -2rem;
           width: 100%;
+          padding: 0 1.6rem;
+          box-sizing: border-box;
         }
       }
       .triangle-right {
@@ -200,7 +202,7 @@ export default {
       text-align: center;
       color: #fff;
       font-size: 40px;
-      line-height: 3.5rem;
+      line-height: 2.9rem;
     }
 
   }

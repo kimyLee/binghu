@@ -43,6 +43,7 @@ export default {
       PowerIncreaseSpeed: 1.5,    // 力度摇摆增减速率
       PowerDecreaseTime: 50,      // 力度衰减时间间隔
       PowerDecreaseStep: 0.5,     // 力度衰减单位大小
+      PowerDecreaseStepAdd: 1,  // 力度衰减单位加速度
       decreaseTimer: '',          // 力度衰减重复进行计时器
       slowTimer: '',              // 力度衰减减缓计时器
       PowerIncreaseFactor: 0,      // 力度和stroke-dasharray计算因子
@@ -199,24 +200,25 @@ export default {
     // 力度衰减
     decreasePower () {
       clearTimeout(this.decreaseTimer)
-      // if (this.status !== 1) {
-      //   return
-      // }
+      this.PowerDecreaseStep = Math.min(0.2, Math.max(0.1, this.PowerDecreaseStep + (this.PowerDecreaseStepAdd * 0.02)))
       this.progress = this.progress - this.PowerDecreaseStep
       this.$emit('returnSpeed', this.progress)
       if (this.progress <= 0) {
         return
       }
-      this.decreaseTimer = setTimeout(() => {
-        this.decreasePower()
-      }, this.PowerDecreaseTime)
+      // this.decreaseTimer = setTimeout(() => {
+      //   this.decreasePower()
+      // }, this.PowerDecreaseTime)
+      this.decreaseTimer = window.requestAnimationFrame(this.decreasePower)
     },
     // 力度减缓
     slowPowerDecrease () {
       clearTimeout(this.slowTimer)
-      this.PowerDecreaseStep = 0.25
+      // this.PowerDecreaseStep = 0.25
+      this.PowerDecreaseStepAdd = -1
       this.slowTimer = setTimeout(() => {
-        this.PowerDecreaseStep = 0.5
+        // this.PowerDecreaseStep = 0.5
+        this.PowerDecreaseStepAdd = 1
       }, 200)
     },
      // 暂停、恢复
@@ -230,7 +232,8 @@ export default {
     },
     // 重置复位
     reset () {
-      clearTimeout(this.decreaseTimer)
+      cancelAnimationFrame && cancelAnimationFrame(this.decreaseTimer)
+      // clearTimeout(this.decreaseTimer)
       this.status = 0
       this.btnText = '选择力度'
       this.beforeStatus = 0
@@ -238,6 +241,8 @@ export default {
       this.$emit('returnSpeed', this.progress)
       this.PowerIncrease = 1
       this.PowerIncreaseSpeed = 1.5
+      this.PowerDecreaseStep = 0.5
+      this.PowerDecreaseStepAdd = 1
       this.PowerDecreaseTime = 50
       this.directBtn = {
         x: 0,

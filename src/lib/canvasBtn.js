@@ -8,7 +8,7 @@ export default class CanvasBtn {
     this.max_radius = ''
     this.context = ''
     this.canvas = ''
-    this.circleOffsetX = side === 'left' ? -8 : 8
+    this.circleOffsetX = side === 'left' ? -6 : 8
     this.circleOffsetY = side === 'left' ? -10 : -10
     this.init(dom)
   }

@@ -73,7 +73,7 @@
       </div>
     </my-dialog>
 
-    <my-dialog height="1" :open="msgTip" @closeDialog="msgTip=false" class="dialog">
+    <my-dialog height="1" :open="msgTip" @closeDialog="closeShowPoint" class="dialog">
       <div class="results-content">       
         <p class="tip"><b>网络错误</b></p>
         <p class="tip"><b>错误信息：{{msgText}}</b></p>
@@ -147,7 +147,7 @@ export default {
       boxY: 0,                // 画布起点纵坐标
       Width: '',              // 画布宽度
       Height: '',             // 画布高度
-      currentFrame: 0,        // 当前帧
+      // currentFrame: 0,        // 当前帧
       image: '',              // 冰壶贴图对象
       peopleImg1: '',         // 观众贴图对象1
       peopleImg2: '',         // 观众贴图对象2
@@ -296,10 +296,12 @@ export default {
 
           this.msgText = error.msg || '未知错误'
           this.msgTip = true
+          this.reStart()
         })
     },
     // 关闭分数页
     closeShowPoint () {
+      this.msgTip = false
       this.showPoints = false
       this.showTotalPoints = false
       this.reStart()
@@ -317,7 +319,6 @@ export default {
     // 最高点减去冰壶起点， 收敛到50 , this.ratio = (this.binghu.begin - this.topest) / 50
     render () {
       this.context.clearRect(this.boxX, this.boxY, this.Width, this.Height)
-      this.currentFrame++
       this.drawBg()
       this.drawFinal()
       this.drawPeople()

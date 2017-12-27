@@ -323,7 +323,7 @@ export default {
       this.drawFinal()
       this.drawPeople()
       this.drawHero()
-      this.drawBrush()
+      // this.drawBrush()
       this.context.save()
       this.context.restore()
 
@@ -367,13 +367,12 @@ export default {
 
       ctx.beginPath()
       ctx.strokeStyle = '#84d0fd'
-      ctx.lineWidth = 10
       ctx.arc(this.Width / 2, this.topest, 40, 0, 2 * Math.PI)
       ctx.stroke()
 
       ctx.beginPath()
       ctx.fillStyle = '#d63338'
-      ctx.lineWidth = 1
+      // ctx.lineWidth = 1
       ctx.arc(this.Width / 2, this.topest, 10, 0, 2 * Math.PI)
       ctx.fill()
     },
@@ -398,7 +397,7 @@ export default {
 
     drawHero () {
       let ctx = this.context
-      ctx.save()
+      // ctx.save()
       let binghu = this.binghu
       if (!this.binghu.stop) {
         this.binghu.posy = -this.speed / this.speedFactor + this.binghu.posy
@@ -416,70 +415,55 @@ export default {
         ctx.moveTo(follow.x, follow.y)
         ctx.lineTo(follow.x1, follow.y1)
         ctx.lineTo(follow.x2, follow.y2)
-        ctx.closePath()
+        // ctx.closePath()
         ctx.fillStyle = '#d35155'
         ctx.fill()
       }
       // 开始剪切x ,开始剪切y,被剪切宽度,被剪切高度,画布上x坐标,画布上y坐标,图像的宽度,图像的高度
       ctx.drawImage(this.image, 0, 0, 162, 160, binghu.posx - binghu.R / 1.5, binghu.posy - binghu.R / 1.5, binghu.R * 2 / 1.5, binghu.R * 2 / 1.5)
-      ctx.restore()
+      // ctx.restore()
     },
 
     drawBg () {
       if (this.binghu.stop) {
         this.bgWalk = this.speed / this.speedFactor + this.bgWalk
+        console.log(this.speed / this.speedFactor, this.bgWalk)
       }
-      let ctx = this.context
-      ctx.fillStyle = '#ccc'
+      // let ctx = this.context
+      // ctx.fillStyle = '#ccc'
       // cxt.fillRect(0, 0, this.Width, this.Height)
 
       let numX = (this.Width - this.roadWidth) / 2 - 28      // 数字横坐标
       let beginY = this.beginMove
       let lineHeight = (beginY - this.topestDistance) / 25
-      // let topHeight = 14
-      // let bottomHeight = 8
-      ctx.lineWidth = 1
-      ctx.strokeStyle = '#ccc'
-      ctx.fillStyle = '#ccc'
-      ctx.beginPath()
+      console.log(numX, lineHeight)
       // 直接画画不图片会卡死
       // 开始剪切x ,开始剪切y,被剪切宽度,被剪切高度,画布上x坐标,画布上y坐标,图像的宽度,图像的高度
-      ctx.drawImage(this.meter, 0, 0, 334, 1539, numX, this.topestDistance + this.bgWalk + lineHeight, this.roadWidth * 2 - 35, beginY - this.topestDistance - lineHeight * 4)
+      // ctx.drawImage(this.meter, 0, 0, 334, 1539, numX, this.topestDistance + this.bgWalk + lineHeight, this.roadWidth * 2 - 35, beginY - this.topestDistance - lineHeight * 4)
 
-      let outterLineWidth = 20
-      let innerLineWidth = 10
-      ctx.beginPath()
-      ctx.strokeStyle = '#ccc'
-      ctx.lineWidth = outterLineWidth
-      ctx.moveTo(this.people.width + outterLineWidth / 2, 0)
-      ctx.lineTo(this.people.width + outterLineWidth / 2, this.Height)
-      ctx.closePath()
-      ctx.stroke()
+      // let outterLineWidth = 20
+      // let innerLineWidth = 10
 
-      ctx.beginPath()
-      ctx.strokeStyle = '#ccc'
-      ctx.lineWidth = outterLineWidth
-      ctx.moveTo(this.Width - this.people.width - outterLineWidth / 2, 0)
-      ctx.lineTo(this.Width - this.people.width - outterLineWidth / 2, this.Height)
-      ctx.closePath()
-      ctx.stroke()
+      // ctx.beginPath()
+      // ctx.strokeStyle = '#ccc'
+      // ctx.lineWidth = outterLineWidth
 
-      ctx.beginPath()
-      ctx.strokeStyle = '#eee'
-      ctx.lineWidth = innerLineWidth
-      ctx.moveTo(this.people.width + outterLineWidth + innerLineWidth / 2, 0)
-      ctx.lineTo(this.people.width + outterLineWidth + innerLineWidth / 2, this.Height)
-      ctx.closePath()
-      ctx.stroke()
+      // ctx.moveTo(this.people.width + outterLineWidth / 2, 0)
+      // ctx.lineTo(this.people.width + outterLineWidth / 2, this.Height)
 
-      ctx.beginPath()
-      ctx.strokeStyle = '#eee'
-      // ctx.lineWidth = numX - this.people.width - 50
-      ctx.lineWidth = 10
-      ctx.moveTo(this.Width - this.people.width - outterLineWidth - innerLineWidth / 2, 0)
-      ctx.lineTo(this.Width - this.people.width - outterLineWidth - innerLineWidth / 2, this.Height)
-      ctx.closePath()
-      ctx.stroke()
+      // ctx.moveTo(this.Width - this.people.width - outterLineWidth / 2, 0)
+      // ctx.lineTo(this.Width - this.people.width - outterLineWidth / 2, this.Height)
+      // ctx.stroke()
+
+      // ctx.beginPath()
+      // ctx.strokeStyle = '#eee'
+      // ctx.lineWidth = innerLineWidth
+      // ctx.moveTo(this.people.width + outterLineWidth + innerLineWidth / 2, 0)
+      // ctx.lineTo(this.people.width + outterLineWidth + innerLineWidth / 2, this.Height)
+
+      // ctx.moveTo(this.Width - this.people.width - outterLineWidth - innerLineWidth / 2, 0)
+      // ctx.lineTo(this.Width - this.people.width - outterLineWidth - innerLineWidth / 2, this.Height)
+      // ctx.stroke()
     },
 
     judge () {

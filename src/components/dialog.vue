@@ -81,7 +81,7 @@ export default {
           content: "";
           position: absolute;
           z-index: 999;
-          top: -8.2rem;
+          top: -8.1rem;
           left: 0;
           width: 0;
           height: 0;
@@ -202,7 +202,7 @@ export default {
       text-align: center;
       color: #fff;
       font-size: 40px;
-      line-height: 2.9rem;
+      line-height: 3.3rem;
     }
 
   }

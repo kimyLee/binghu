@@ -53,7 +53,7 @@ Vue.prototype.$domain = location.port.indexOf('8888') < 0 ? '/binghutiaozhan' : 
 
 Vue.filter('autoPre', (url) => {
   if (location.port.indexOf('8888') < 0) {
-    return `${url}`
+    return `/binghutiaozhan${url}`
   }
   return url
 })

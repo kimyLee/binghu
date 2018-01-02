@@ -13,8 +13,8 @@
       <span class="inner-cycle-text"  :class="{'animate-text': addTip}">{{btnText}}</span>
     </div>
     <svg :width="clientWidth * 0.4" :height="clientWidth * 0.4" class="my-svg">
-      <circle :cx="clientWidth * 0.2" :cy="clientWidth * 0.36" :r="clientWidth * 0.2 - 20" stroke-width="15" stroke="#fed744" fill="none"></circle>
-      <circle class="inner-svg" :cx="clientWidth * 0.2" :cy="clientWidth * 0.36" :r="clientWidth * 0.2 - 20" stroke-width="15" stroke="#fcfcfc" fill="none"  :stroke-dasharray="circleDasharray"></circle>
+      <circle :cx="clientWidth * 0.2" :cy="clientWidth * 0.36" :r="clientWidth * 0.2 - 20" stroke-width="15" stroke="#fcfcfc" fill="none"></circle>
+      <circle class="inner-svg" :cx="clientWidth * 0.2" :cy="clientWidth * 0.36" :r="clientWidth * 0.2 - 20" stroke-width="15" stroke="#fed744" fill="none"  :stroke-dasharray="circleDasharray"></circle>
     </svg>
     <!-- 指引 -->
     <div class="click-tip" v-if="addFirstTip">

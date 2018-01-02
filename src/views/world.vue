@@ -74,10 +74,10 @@
     </my-dialog>
 
     <my-dialog height="1" :open="msgTip" @closeDialog="closeShowPoint" class="dialog">
-      <div class="results-content">       
-        <p class="tip"><b>网络错误</b></p>
+      <span slot="title" >出错了···</span>
+      <div class="">       
         <p class="tip"><b>错误信息：{{msgText}}</b></p>
-        <p class="tip">请刷新页面重试</p>
+        <p class="tip">抱歉，当前网络似乎出现意外状况，请尝试刷新页面</p>
       </div>
     </my-dialog>
 
@@ -85,7 +85,8 @@
         <img slot="title" :src="'/static/images/victory.png' | autoPre" v-show="success"/>
         <img slot="title" :src="'/static/images/failed.png' | autoPre" v-show="!success"/>
         <div class="results-content" style="padding: 0; ">
-          <p class="notice">你距离靶心<span class="num">{{this.score}}</span>M</p>
+          <p class="notice">你距离靶心<br>
+            <span class="num">{{this.score}}</span>M</p>
           <p class="slogan">万宝路新红万产品全新升级</p>
           <ul class="attrs">
             <li>口味特点：</li>
@@ -124,6 +125,10 @@ export default {
   },
   data () {
     return {
+      // 计算过程中的值缓存
+      numX: 0,                // 画跑道的起始横坐标
+      lineHeight: 0,          // 画跑道的间隔距离
+
       points: 0,             // 获得积分
       renderTimer: 0,         // 渲染函数计时器
       hasBrush: 0,            // 点击刷过次数，超过5次不用触发更加顺滑
@@ -132,16 +137,19 @@ export default {
       topestDistance: -630,   // 终 点 实际位移
       topest: -630,           // 终 点
       score: 0,               // 距离分数
+      computedScoreTimer: '', // 计算分数时间器
       binghu: '',             // 冰壶对象
       brush: '',              // 刷子对象
       bgWalk: 0,              // 背景偏移
       roadWidth: 100,         // 轨道宽度
       speed: 0,               // 速度力度
       speedFactor: 33,        // 速度计算因子
+      rate: 33,               // speed / speedFactor
       ratio: '',              // 分数计算因子
       status: 0,              // 当前状态， 0 正在选择力度， 1 正在移动，  2， 游戏结束
 
       context: '',            // 上下文
+      contextStatic: '',      // 上下文
       canvas: '',             // 画布对象
       boxX: 0,                // 画布起点横坐标
       boxY: 0,                // 画布起点纵坐标
@@ -221,6 +229,12 @@ export default {
       }
     }
   },
+
+  // computed: {
+  //   score () {
+  //     return (Math.abs(this.beginMove - this.topestDistance - this.bgWalk) / this.ratio).toFixed(1)
+  //   }
+  // },
 
   created () {
     this.binghu = new BingHu()
@@ -319,16 +333,28 @@ export default {
     // 最高点减去冰壶起点， 收敛到50 , this.ratio = (this.binghu.begin - this.topest) / 50
     render () {
       this.context.clearRect(this.boxX, this.boxY, this.Width, this.Height)
+      this.rate = Math.round(this.speed * 10 / this.speedFactor) / 10
       this.drawBg()
       this.drawFinal()
       this.drawPeople()
       this.drawHero()
-      // this.drawBrush()
+      this.drawBrush()
       this.context.save()
       this.context.restore()
 
-      this.score = (Math.abs(this.beginMove - this.topestDistance - this.bgWalk) / this.ratio).toFixed(1)
+      // this.score = (Math.abs(this.beginMove - this.topestDistance - this.bgWalk) / this.ratio).toFixed(1)
       this.judge()
+    },
+
+    // 单独实时计算score。 不要在request和监听里面
+    computedScore () {
+      this.computedScoreTimer = setTimeout(() => {
+        this.score = (Math.abs(this.beginMove - this.topestDistance - this.bgWalk) / this.ratio).toFixed(3)
+        this.computedScore()
+      }, 250)
+    },
+    cancelComputedScore () {
+      clearTimeout(this.computedScoreTimer)
     },
 
     shot (val) {
@@ -338,6 +364,34 @@ export default {
       this.status = val
       this.binghu.stop = false
       this.fireTextTip('go')
+    },
+
+    // 画静态的两条线，不用放在render渲染进程里面
+    drawStatic () {
+      let ctx = this.contextStatic
+      let outterLineWidth = 20
+      let innerLineWidth = 10
+
+      ctx.beginPath()
+      ctx.strokeStyle = '#ccc'
+      ctx.lineWidth = outterLineWidth
+
+      ctx.moveTo(this.people.width + outterLineWidth / 2, 0)
+      ctx.lineTo(this.people.width + outterLineWidth / 2, this.Height)
+
+      ctx.moveTo(this.Width - this.people.width - outterLineWidth / 2, 0)
+      ctx.lineTo(this.Width - this.people.width - outterLineWidth / 2, this.Height)
+      ctx.stroke()
+
+      ctx.beginPath()
+      ctx.strokeStyle = '#eee'
+      ctx.lineWidth = innerLineWidth
+      ctx.moveTo(this.people.width + outterLineWidth + innerLineWidth / 2, 0)
+      ctx.lineTo(this.people.width + outterLineWidth + innerLineWidth / 2, this.Height)
+
+      ctx.moveTo(this.Width - this.people.width - outterLineWidth - innerLineWidth / 2, 0)
+      ctx.lineTo(this.Width - this.people.width - outterLineWidth - innerLineWidth / 2, this.Height)
+      ctx.stroke()
     },
 
     drawBrush () {
@@ -354,7 +408,7 @@ export default {
     drawFinal () {
       let ctx = this.context
       if (this.binghu.stop) {
-        this.topest = this.topest + this.speed / this.speedFactor
+        this.topest = this.topest + this.rate
       }
 
       ctx.beginPath()
@@ -384,7 +438,7 @@ export default {
       // 制造三张图一直循环
       people.posArr.forEach((e, index) => {
         if (this.binghu.stop) {
-          e.y = e.y + this.speed / this.speedFactor
+          e.y = e.y + this.rate
         }
         if (e.y >= this.Height) {
           e.y = -people.height - (this.Height - people.height)
@@ -400,7 +454,7 @@ export default {
       // ctx.save()
       let binghu = this.binghu
       if (!this.binghu.stop) {
-        this.binghu.posy = -this.speed / this.speedFactor + this.binghu.posy
+        this.binghu.posy = -this.rate + this.binghu.posy
         if (this.binghu.posy < this.beginMove) {
           this.binghu.stop = true
         }
@@ -409,7 +463,7 @@ export default {
         this.binghu.horSpeed = this.binghu.horSpeed + this.binghu.horAccSpeed
         this.binghu.horSpeed = this.binghu.horSpeed > 0.5 ? 0.5 : (this.binghu.horSpeed < -0.5 ? -0.5 : this.binghu.horSpeed)
         this.binghu.posx = this.binghu.posx + this.binghu.horSpeed
-        let follow = this.binghu.getFollowerPos(this.binghu.horSpeed, this.speed / this.speedFactor)
+        let follow = this.binghu.getFollowerPos(this.binghu.horSpeed, this.rate)
 
         ctx.beginPath()
         ctx.moveTo(follow.x, follow.y)
@@ -426,44 +480,15 @@ export default {
 
     drawBg () {
       if (this.binghu.stop) {
-        this.bgWalk = this.speed / this.speedFactor + this.bgWalk
-        console.log(this.speed / this.speedFactor, this.bgWalk)
+        this.bgWalk = Math.round((this.rate + this.bgWalk) * 10) / 10
       }
-      // let ctx = this.context
+      let ctx = this.context
       // ctx.fillStyle = '#ccc'
       // cxt.fillRect(0, 0, this.Width, this.Height)
 
-      let numX = (this.Width - this.roadWidth) / 2 - 28      // 数字横坐标
-      let beginY = this.beginMove
-      let lineHeight = (beginY - this.topestDistance) / 25
-      console.log(numX, lineHeight)
       // 直接画画不图片会卡死
       // 开始剪切x ,开始剪切y,被剪切宽度,被剪切高度,画布上x坐标,画布上y坐标,图像的宽度,图像的高度
-      // ctx.drawImage(this.meter, 0, 0, 334, 1539, numX, this.topestDistance + this.bgWalk + lineHeight, this.roadWidth * 2 - 35, beginY - this.topestDistance - lineHeight * 4)
-
-      // let outterLineWidth = 20
-      // let innerLineWidth = 10
-
-      // ctx.beginPath()
-      // ctx.strokeStyle = '#ccc'
-      // ctx.lineWidth = outterLineWidth
-
-      // ctx.moveTo(this.people.width + outterLineWidth / 2, 0)
-      // ctx.lineTo(this.people.width + outterLineWidth / 2, this.Height)
-
-      // ctx.moveTo(this.Width - this.people.width - outterLineWidth / 2, 0)
-      // ctx.lineTo(this.Width - this.people.width - outterLineWidth / 2, this.Height)
-      // ctx.stroke()
-
-      // ctx.beginPath()
-      // ctx.strokeStyle = '#eee'
-      // ctx.lineWidth = innerLineWidth
-      // ctx.moveTo(this.people.width + outterLineWidth + innerLineWidth / 2, 0)
-      // ctx.lineTo(this.people.width + outterLineWidth + innerLineWidth / 2, this.Height)
-
-      // ctx.moveTo(this.Width - this.people.width - outterLineWidth - innerLineWidth / 2, 0)
-      // ctx.lineTo(this.Width - this.people.width - outterLineWidth - innerLineWidth / 2, this.Height)
-      // ctx.stroke()
+      ctx.drawImage(this.meter, 0, 0, 334, 1539, this.numX, this.topestDistance + this.bgWalk + this.lineHeight, this.roadWidth * 2 - 42, this.roadImgHeight)
     },
 
     judge () {
@@ -477,6 +502,8 @@ export default {
 
     gameOver () {
       this.status = 2
+      this.cancelComputedScore()
+      this.score = (Math.abs(this.beginMove - this.topestDistance - this.bgWalk) / this.ratio).toFixed(3)
       if (this.score >= 10) {
         this.success = false
         this.showResult = true
@@ -486,6 +513,7 @@ export default {
       }
     },
     reStart () {
+      this.cancelComputedScore()
       this.hasBrush = 0
       this.speed = 0
       this.binghu.reset()
@@ -495,6 +523,7 @@ export default {
       this.$refs.powerLine.reset()
       cancelAnimationFrame && cancelAnimationFrame(this.renderTimer)
       this.run()
+      this.computedScore()
     },
 
     // 左右按钮点击事件
@@ -557,12 +586,19 @@ export default {
       this.Width = window.innerWidth             // 屏幕宽度
       this.Height = window.innerHeight           // 屏幕高度
       this.beginMove = 2 / 3 * this.Height       // 开始滑动
+      this.numX = Math.round((this.Width - this.roadWidth) / 2 - 28)              // 数字横坐标
+      this.lineHeight = Math.round((this.beginMove - this.topestDistance) / 25)   // 跑道标尺2m长
+      this.roadImgHeight = Math.round(this.beginMove - this.topestDistance - this.lineHeight * 4)   // 跑道图高
+
       this.ratio = (this.beginMove - this.topestDistance) / 50
+
       let str = '<canvas id="canvas" width=' + this.Width + '; height=' + this.Height + '>Sorry! you的浏览器不支持canvas</canvas>'
-      document.getElementById('stage').innerHTML = str
+      let str2 = '<canvas id="canvasStatic" width=' + this.Width + '; height=' + this.Height + '>Sorry! you的浏览器不支持canvas</canvas>'
+      document.getElementById('stage').innerHTML = str2 + str
       // 全局对象
       this.canvas = document.getElementById('canvas')
       this.context = this.canvas.getContext('2d')
+      this.contextStatic = document.getElementById('canvasStatic').getContext('2d')
 
       if (window.devicePixelRatio) {
         this.canvas.style.width = this.Width + 'px'
@@ -573,6 +609,8 @@ export default {
       }
 
       this.run()
+      this.drawStatic()
+      this.computedScore()
     })
   },
 
@@ -591,12 +629,18 @@ export default {
       width: 100%;
       height: 100%;
       canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
         width: 100%;
         height: 100%;
       }
+      #canvasStatic {
+        // z-index: 99;
+      }
     }
     .score-panel {
-      width: 8.2rem;
+      width: 10.2rem;
       height: 13.3rem;
       padding: 0.5rem;
       background: rgba(255, 255, 255, .67);
@@ -624,7 +668,7 @@ export default {
 
       }
       .ranking {
-          width: 8.2rem;
+          width: 10.2rem;
           height: 3.3rem;
           text-align: center;
           color: #fff;
@@ -792,7 +836,7 @@ export default {
       display: inline-block;
       text-align: center;
       color: #fff;
-      background-image:url('/static/images/btn-bg.png');
+      background-image:url('/binghutiaozhan/static/images/btn-bg.png');
       background-size: 100% 100%;
       width: 80%;
       margin-top: 1rem;
@@ -822,7 +866,7 @@ export default {
   }
   .results.dialog {
     .dialog-container {
-      top: 50%;
+      top: 45%;
       transform: translateY(-50%);
     }
   }

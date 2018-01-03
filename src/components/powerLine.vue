@@ -200,7 +200,7 @@ export default {
     // 力度衰减
     decreasePower () {
       clearTimeout(this.decreaseTimer)
-      this.PowerDecreaseStep = Math.min(0.2, Math.max(0.1, this.PowerDecreaseStep + (this.PowerDecreaseStepAdd * 0.02)))
+      this.PowerDecreaseStep = Math.min(0.15, Math.max(0.05, this.PowerDecreaseStep + (this.PowerDecreaseStepAdd * 0.02)))
       this.progress = this.progress - this.PowerDecreaseStep
       this.$emit('returnSpeed', this.progress)
       if (this.progress <= 0) {

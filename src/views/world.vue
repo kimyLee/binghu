@@ -41,7 +41,7 @@
         class="wrapper"
         @scrollToEnd="fetchData">
         <ul class="content">
-          <li v-for="item in (rankData || data)" :key="item.Sort">
+          <li v-for="item in rankData" :key="item.Sort">
             <div class="ranking-section">
               <span class="rank">{{ item.Sort }}</span>
               <img :src="item.UserLogo" class="avatar" />
@@ -55,12 +55,21 @@
       <div class="ranking-more">向上拉动查看更多排名</div>
     </my-dialog>
 
-    <my-dialog height="5" :open="showPoints" @closeDialog="closeShowPoint" class="dialog points" style="text-align: left;">
+    <my-dialog height="16" :open="showPoints" @closeDialog="closeShowPoint" class="dialog points" style="text-align: left;">
       <img slot="title" :src="'/static/images/victory.png' | autoPre"/>
       <div class="results-content" style="padding: 0;">
         <p class="notice">获得<span class="num">{{points}}分</span></p>
-        <p class="tip">总积分达到了{{baseinfo.point + points}}分</p>
-        <p class="tip">每天只能有一次获得积分的机会,请明天再来吧</p>
+        <p class="slogan">万宝路新红万产品全新升级</p>
+          <ul class="attrs">
+            <li>口味特点：</li>
+            <li>富在内 融于味</li>
+            <li>经典美式混合烟，口味进一步提升</li>
+            <li>劲还在，口感更顺</li>
+            <li>焦油含量降至10毫克</li>
+          </ul>
+          <div style="text-align: center;">
+            <span class="results-btn" @click="handleBtnClick('continue')">再次挑战</span>
+          </div>
       </div>
     </my-dialog>
 
@@ -68,7 +77,7 @@
     <my-dialog height="5" :open="showTotalPoints" @closeDialog="closeShowPoint" class="dialog points" style="text-align: left;">
       <img slot="title" :src="'/static/images/victory.png' | autoPre"/>
       <div class="results-content" style="padding: 0;">
-        <p class="tip">总积分达到了<span class="num">{{baseinfo.point}}</span>分</p>
+        <p class="tip">总积分达到了<span class="num">{{baseinfo.points}}</span>分</p>
         <p class="tip">每天只能有一次获得积分的机会,请明天再来吧</p>
       </div>
     </my-dialog>
@@ -107,6 +116,7 @@
 </template>
 
 <script>
+import Qs from 'qs'
 import powerLine from '@/components/powerLine'
 import optionBtn from '@/components/optionBtn'
 import BingHu from '@/class/binghu'
@@ -129,7 +139,7 @@ export default {
       numX: 0,                // 画跑道的起始横坐标
       lineHeight: 0,          // 画跑道的间隔距离
 
-      points: 0,             // 获得积分
+      points: 0,              // 获得积分
       renderTimer: 0,         // 渲染函数计时器
       hasBrush: 0,            // 点击刷过次数，超过5次不用触发更加顺滑
       beginMove: '',          // 从哪个点开始计算距离， 默认2 / 3 Height
@@ -205,10 +215,10 @@ export default {
       success: false,
 
       baseinfo: {                           // 用户信息
-        points: '',
+        points: 0,
         hasGetPoint: false
       },
-      rankData: ''                         // 排行榜数据
+      rankData: []                         // 排行榜数据
     }
   },
 
@@ -245,7 +255,7 @@ export default {
     this.peopleImg2 = new Image()
     this.brushImage = new Image()
     this.meter = new Image()
-    // this.fetchData()
+    this.fetchData()
 
     this.image.src = this.$domain + '/static/images/binghu.png'
     this.brushImage.src = this.$domain + '/static/images/brush.png'
@@ -258,11 +268,14 @@ export default {
     // 获取用户信息和排行榜数据
     fetchData () {
       axios.post('/Index/SystemStatue')
-        .then((res) => {
+        .then((result) => {
+          // console.log(res)
+          // let res = JSON.stringify(result)
+          let res = result.data
           if (res.Code === 1) {
             let data = res.Data
             this.baseinfo = {
-              points: data.Integral || '',
+              points: data.GetedIntegral || 0,
               hasGetPoint: !!data.UserStatue
             }
             this.rankData = data.RankingList
@@ -271,17 +284,19 @@ export default {
           }
         })
         .catch((error) => {
-          this.msgText = error.msg || '未知错误'
-          this.msgTip = true
+          console.log(error)
+          // this.msgText = error.msg || '未知错误'
+          // this.msgTip = true
         })
       console.log('fetching data...')
     },
     // 上传成绩距离 todo: 如果不能获得积分的原因有两个，1 距离不到，2 今天已获得，需要返回失败类型
     pushScore (distance) {
-      axios.post('/Index/SaveUserInfo', {
-        Distance: distance
-      })
-        .then((res) => {
+      let data = Qs.stringify({Distance: distance})
+      axios.post('/Index/SaveUserInfo', data, {headers: { 'Content-Type': 'application/x-www-form-urlencoded' }})
+        .then((result) => {
+          let res = result.data
+          // let res = JSON.stringify(result)
           if (res.Code === 1) {
             let data = res.Data
             let success = data.Statue
@@ -290,10 +305,12 @@ export default {
             }
             // 如果今天已获取积分
             if (this.baseinfo.hasGetPoint || !data.IsGetIntegral) {
+              this.points = 0
+              this.baseinfo.points = data.GetedIntegral || 0
               this.showTotalPoints = true
             } else {
-              // 能获得积分，打开获得积分页
-              this.point = data.GetedIntegral
+              // 能获得积分，打开获得积分页GetedIntegral
+              this.points = data.GetedIntegral
               this.showResult = false
               this.showPoints = true
             }
@@ -312,6 +329,13 @@ export default {
           this.msgTip = true
           this.reStart()
         })
+    },
+    // 增加积分接口，jsonp
+    addScore () {
+      var script = document.createElement("script")       
+      script.setAttribute("src",url)
+      script.setAttribute("type","text/javascript")             
+      document.body.appendChild(script)
     },
     // 关闭分数页
     closeShowPoint () {
@@ -504,7 +528,7 @@ export default {
       this.status = 2
       this.cancelComputedScore()
       this.score = (Math.abs(this.beginMove - this.topestDistance - this.bgWalk) / this.ratio).toFixed(3)
-      if (this.score >= 10) {
+      if (this.score >= 5) {
         this.success = false
         this.showResult = true
       } else {
@@ -577,6 +601,7 @@ export default {
       }
       if (type === 'continue') {
         this.showResult = false
+        this.showPoints = false
         this.reStart()
       }
     }

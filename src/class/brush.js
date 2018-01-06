@@ -2,7 +2,7 @@ export default class Brush {
   constructor () {
     this.dir = ''
     this.margin = 60
-    this.width = 60
+    this.width = 70
     this.height = this.width / 2.25
     this.posX = window.innerWidth / 2 - this.margin
     this.decreaseFactor = -1

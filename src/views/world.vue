@@ -127,6 +127,14 @@ import People from '@/class/people'
 import myDialog from '@/components/dialog'
 import BScroll from 'better-scroll'
 import axios from 'axios'
+let fadeAudio = ''          // 淡出计时器
+let brushTimer = ''         // 刷子声音计时器
+let playing = false         // 刷子声音计时器
+let myAudio = {
+  cheer: '',
+  fail: '',
+  brush: ''
+}
 
 export default {
   name: 'world',
@@ -257,13 +265,16 @@ export default {
     this.peopleImg2 = new Image()
     this.brushImage = new Image()
     this.meter = new Image()
+    this.finalAD = new Image()
     this.fetchData()
 
     this.image.src = this.$domain + '/static/images/binghu.png'
     this.brushImage.src = this.$domain + '/static/images/brush.png'
     this.peopleImg1.src = this.$domain + '/static/images/people2.jpg'
     this.peopleImg2.src = this.$domain + '/static/images/people.jpg'
-    this.meter.src = this.$domain + '/static/images/meter.jpg'
+    this.meter.src = this.$domain + '/static/images/newMeter.jpg'
+    this.finalAD.src = this.$domain + '/static/images/bg-ad.png'
+    this.createAudio()
   },
 
   methods: {
@@ -362,6 +373,38 @@ export default {
       this.renderTimer = window.requestAnimFrame(this.run)
     },
 
+    // 创建音频
+    createAudio () {
+      for (let ele in myAudio) {
+        myAudio[ele] = document.createElement('AUDIO')
+        myAudio[ele].src = this.$domain + `/static/audio/${ele}.mp3`
+        myAudio[ele].preload = true
+        if (ele === 'brush') {
+          // myAudio[ele].loop = true
+        }
+      }
+    },
+
+    // 音量淡出
+    getSoundAndFadeAudio (sound, delayTime = 0) {
+      if (!sound) {
+        return
+      }
+      clearInterval(fadeAudio)
+      setTimeout(() => {
+        let fadePoint = Math.round(sound.duration - delayTime)
+        fadeAudio = setInterval(() => {
+          if ((sound.currentTime >= fadePoint) && (sound.volume !== 0)) {
+            sound.volume = Math.max(sound.volume - 0.1, 0)
+          }
+          if (sound.volume <= 0 || (sound.currentTime >= sound.duration)) {
+            // sound.pause()
+            clearInterval(fadeAudio)
+          }
+        }, 200)
+      }, 100)
+    },
+
     // score 计算
     // 最高点减去冰壶起点， 收敛到50 , this.ratio = (this.binghu.begin - this.topest) / 50
     render () {
@@ -433,7 +476,7 @@ export default {
       if (this.brush.show) {
         let ctx = this.context
         // 开始剪切x ,开始剪切y,被剪切宽度,被剪切高度,画布上x坐标,画布上y坐标,图像的宽度,图像的高度
-        ctx.drawImage(this.brushImage, 0, 0, 115, 51, brush.posX - brush.width / 2, 300, brush.width, brush.height)
+        ctx.drawImage(this.brushImage, 0, 0, 146, 50, brush.posX - brush.width / 2, 300, brush.width, brush.height)
       }
     },
 
@@ -462,6 +505,8 @@ export default {
       // ctx.lineWidth = 1
       ctx.arc(this.Width / 2, this.topest, 10, 0, 2 * Math.PI)
       ctx.fill()
+
+      ctx.drawImage(this.finalAD, 0, 0, 296, 150, this.Width / 2 - 80, this.topest - 300, 160, 80)
     },
 
     // 画一堆观众
@@ -521,7 +566,10 @@ export default {
 
       // 直接画画不图片会卡死
       // 开始剪切x ,开始剪切y,被剪切宽度,被剪切高度,画布上x坐标,画布上y坐标,图像的宽度,图像的高度
-      ctx.drawImage(this.meter, 0, 0, 334, 1539, this.numX, this.topestDistance + this.bgWalk + this.lineHeight, this.roadWidth * 2 - 42, this.roadImgHeight)
+      ctx.fillStyle = '#999'
+      ctx.font = '12px sans-serif'
+      ctx.fillText('2m', this.numX + 4, this.topestDistance + this.bgWalk + this.lineHeight * 2 - 20)
+      ctx.drawImage(this.meter, 0, 0, 334, 1470, this.numX, this.topestDistance + this.bgWalk + this.lineHeight * 2, this.roadWidth * 2 - 42, this.roadImgHeight)
     },
 
     judge () {
@@ -540,9 +588,17 @@ export default {
       if (this.score >= 5) {
         this.success = false
         this.showResult = true
+        myAudio.fail.currentTime = 0
+        myAudio.fail && myAudio.fail.play()
+        // this.getSoundAndFadeAudio(myAudio.fail)
       } else {
         this.success = true
         this.showResult = true
+        myAudio.brush.pause()
+        myAudio.cheer.currentTime = 0
+        myAudio.cheer.volume = 1
+        myAudio.cheer && myAudio.cheer.play()
+        this.getSoundAndFadeAudio(myAudio.cheer, 2)
       }
     },
     reStart () {
@@ -571,6 +627,21 @@ export default {
       this.$refs.powerLine.slowPowerDecrease()
       this.binghu.horAccSpeed = dir ? (dir === 'left' ? -0.05 : 0.05) : 0
       this.brush.addCount(dir)
+
+      // 音频控制
+      clearTimeout(brushTimer)
+      if (!playing) {
+        myAudio.brush.currentTime = 0.5
+        myAudio.brush.play()
+        playing = true
+        brushTimer = setTimeout(() => {
+          myAudio.brush.pause()
+          playing = false
+        }, 800)
+        setTimeout(() => {
+          playing = false
+        }, 1200)
+      }
     },
 
     // 获取偏移移动角度, 收敛值是振幅  / 0.5
@@ -617,12 +688,12 @@ export default {
   },
   mounted () {
     this.$nextTick(() => {
-      this.Width = window.innerWidth             // 屏幕宽度
-      this.Height = window.innerHeight           // 屏幕高度
-      this.beginMove = 2 / 3 * this.Height       // 开始滑动
+      this.Width = window.innerWidth                            // 屏幕宽度
+      this.Height = Math.min(window.innerHeight, 667)           // 屏幕高度
+      this.beginMove = 2 / 3 * this.Height                      // 开始滑动
       this.numX = Math.round((this.Width - this.roadWidth) / 2 - 28)              // 数字横坐标
       this.lineHeight = Math.round((this.beginMove - this.topestDistance) / 25)   // 跑道标尺2m长
-      this.roadImgHeight = Math.round(this.beginMove - this.topestDistance - this.lineHeight * 4)   // 跑道图高
+      this.roadImgHeight = Math.round(this.beginMove - this.topestDistance - this.lineHeight * 6)   // 跑道图高
 
       this.ratio = (this.beginMove - this.topestDistance) / 50
 
@@ -645,6 +716,11 @@ export default {
       this.run()
       this.drawStatic()
       this.computedScore()
+      if (myAudio.cheer) {
+        myAudio.cheer.currentTime = 0
+        myAudio.cheer.play()
+      }
+      this.getSoundAndFadeAudio(myAudio.cheer, 2)
     })
   },
 
@@ -687,7 +763,7 @@ export default {
         border-radius: 5px;
         width: 100%;
         box-sizing: border-box;
-        height: 8.25rem;
+        // height: 8.25rem;
         background: #fff;
         .box-item {
           box-sizing: border-box;

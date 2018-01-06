@@ -38,4 +38,15 @@ body {
   width: 100%;
   height: 100%;
 }
+@media (min-height: 668px) {
+  body {
+    background: #973134;
+  }
+  #app {
+    height: 667px;
+    top: 50%;
+    transform: translateY(-50%);
+    overflow: hidden;
+  }
+}
 </style>

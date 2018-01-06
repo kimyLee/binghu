@@ -6,16 +6,26 @@
       <canvas id="floolwerCanvas" :width="clientWidth * 0.4" :height="clientWidth * 0.4"></canvas>
       <!-- <img :src="'/static/images/follower.png' | autoPre"> -->
     </div>
-    <div class="outer-cycle"></div>
+    <!-- 刻度尺 -->
+    <!-- <div class="cycle-calibration">
+      <img  :src="'/static/images/powerline.png' | autoPre" />
+    </div> -->
+    <div class="outer-cycle">
+       <img  :src="'/static/images/outcycle.png' | autoPre" />
+    </div>
     <div class="inner-cycle" @click="shot">
       <span class="inner-cycle-icon" ></span><br>
       <span class="inner-cycle-line" ></span><br>
       <span class="inner-cycle-text"  :class="{'animate-text': addTip}">{{btnText}}</span>
     </div>
     <svg :width="clientWidth * 0.4" :height="clientWidth * 0.4" class="my-svg">
-      <circle :cx="clientWidth * 0.2" :cy="clientWidth * 0.36" :r="clientWidth * 0.2 - 20" stroke-width="15" stroke="#fcfcfc" fill="none"></circle>
-      <circle class="inner-svg" :cx="clientWidth * 0.2" :cy="clientWidth * 0.36" :r="clientWidth * 0.2 - 20" stroke-width="15" stroke="#fed744" fill="none"  :stroke-dasharray="circleDasharray"></circle>
+      <circle :cx="clientWidth * 0.2" :cy="clientWidth * 0.378" :r="clientWidth * 0.2 - 15" stroke-width="15" stroke="#fcfcfc" fill="none"></circle>
+      <circle class="inner-svg" :cx="clientWidth * 0.2" :cy="clientWidth * 0.378" :r="clientWidth * 0.2 - 15" stroke-width="15" stroke="#fed744" fill="none"  :stroke-dasharray="circleDasharray"></circle>
     </svg>
+    <!-- 力度指示箭头 -->
+    <div class="power-arrow" :style="{transform: `rotate(${this.progress / 100 * 200}deg) translateY(50%)`, '-webkit-transform': `rotate(${this.progress / 100 * 200}deg) translateY(50%)`}">
+      <img  :src="'/static/images/power-btn.png' | autoPre" />
+    </div>
     <!-- 指引 -->
     <div class="click-tip" v-if="addFirstTip">
         <transition name="right-in">
@@ -84,6 +94,7 @@ export default {
   mounted () {
     this.$nextTick(() => {
       this.init()
+      // 提示出场
       this.addFirstTip = true
       this.$nextTick(() => {
         this.handIn = true
@@ -94,6 +105,10 @@ export default {
           this.addFirstTip = false
         }, 300)
       }, 2000)
+
+      // 计算那个力度指示器的origin
+      this.$el.querySelector('.power-arrow').style.transformOrigin = `${window.innerWidth * 0.208}px ${window.innerWidth * 0.02}px`
+      this.$el.querySelector('.power-arrow').style.WebkitTransformOrigin = `${window.innerWidth * 0.208}px ${window.innerWidth * 0.02}px`
     })
   },
   methods: {
@@ -115,6 +130,7 @@ export default {
     },
     // 摇摆选择力度
     swingPower () {
+      // this.progress = 100
       this.progress = this.progress + this.PowerIncrease * this.PowerIncreaseSpeed
       if (this.progress >= 100) {
         this.PowerIncrease = -1
@@ -268,10 +284,25 @@ export default {
     left: 50%;
     transform: translateX(-50%);
     width: 40%;
+    // padding-left: 2%;
+    // padding-right: 2%;
+    // box-sizing: border-box;
     height: 0;
     padding-bottom: 40%;
     bottom: 0;
-    overflow: hidden;
+    // overflow: hidden;
+    .power-arrow {
+      position: absolute;
+      bottom: 0;
+      width: 1.5rem;
+      left: -0.2rem;
+      z-index: 999;
+      // transform-origin: 6.3rem 0.7rem;
+      transform: rotate(0deg) translateY(50%);
+      img {
+        width: 100%;
+      }
+    }
     .direction-icon {
       position: absolute;
       // z-index: 199;
@@ -293,54 +324,79 @@ export default {
       .inner-svg {
          transform-origin: center;
           transform-box: fill-box;
-         transform: rotate(30deg);
+          transform: rotate(50deg);
      
+      }
+    }
+    .cycle-calibration {
+      position: absolute;
+      padding-bottom: 60%;
+      height: 0;
+      bottom: 0;
+      width: 100%;
+      z-index: 999;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+      box-sizing: border-box;
+      // padding: 0.5rem;
+      img {
+        margin-top: 0.5rem;
+        width: 100%;
       }
     }
     .outer-cycle {
       position: absolute;
       bottom: 0;
+      // padding-left: 0.5rem;
+      // padding-right: 0.5rem;
+      // box-sizing: border-box;
+      // margin: 0rem 0.3rem 0 0.3rem;
       width: 100%;
       // left: 50%;
       height: 0;
       outline: none;
       padding-bottom: 100%;
       border-radius: 50%;
-      background: #d35155;
-      transform: translateY(40%) ;
+      // background: #d35155;
+      transform: translateY(44%) ;
+      // transform: translateY(50%) ;
+      img {
+        width: 100%;
+      }
     }
     .inner-cycle {
       z-index: 100;
       position: absolute;
       bottom: 0;
-      width: 64%;
-      left: 18%;
+      width: 74%;
+      left: 13%;
       height: 0;
       outline: none;
-      padding-bottom: 64%;
+      padding-bottom: 74%;
       border-radius: 50%;
       background: #d35155;
-      box-shadow: 0px 3px 5px 5px rgba(0, 0, 0, .37);
-      transform: translateY(35%) ;
+      box-shadow: 0px 2px 3px 3px rgba(0, 0, 0, .27);
+      transform: translateY(44%) ;
       text-align: center;
       .inner-cycle-icon {
         display: inline-block;
         width: 0;
         height: 0;
+        margin-top: 0.5rem;
         border:solid #fff;
-        border-top-width: 1rem;
-        border-left-width: 1rem;
-        border-right-width: 1rem;
-        border-bottom-width: 1rem;
+        border-top-width: 0.6rem;
+        border-left-width: 0.6rem;
+        border-right-width: 0.6rem;
+        border-bottom-width: 0.6rem;
         border-left-color: transparent;
         border-right-color: transparent;
         border-top-color: transparent;
       }
       .inner-cycle-line {
         display: inline-block;
-        width: 2rem;
+        width: 1rem;
         height: 0;
-        border-top: 3px solid #fff;
+        border-top: 2px solid rgba(255, 255, 255, .37);
         vertical-align: top; 
       }
       .inner-cycle-text {
@@ -354,6 +410,7 @@ export default {
           animation: TextShow .5s ease-out;
         }  
       }
+
 
     }
     .shotBtn {

@@ -33,7 +33,7 @@ export default {
 <style lang="scss" rel="stylesheet/scss">
   .option-btn {
     position: fixed;
-    bottom: 0;
+    bottom: -2px;
     // width: 20%;
     // height: 4rem;
     text-align: center;

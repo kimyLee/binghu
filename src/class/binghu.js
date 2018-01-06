@@ -2,7 +2,7 @@ export default class BingHu {
   constructor () {
     this.radius = 50
     this.R = 70
-    this.begin = window.innerHeight - window.innerWidth / 2.5 - 20
+    this.begin = Math.min(window.innerHeight, 667) - window.innerWidth / 2.5 - 20
     this.posx = window.innerWidth / 2
     this.posy = this.begin
     // this.posy = window.innerHeight - window.innerWidth / 2.5

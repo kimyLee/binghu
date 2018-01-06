@@ -313,6 +313,7 @@ export default {
               this.points = data.GetedIntegral
               this.showResult = false
               this.showPoints = true
+              this.addScore(data.activityId, data.UserId, this.points)
             }
           } else {
             return Promise.reject(res)
@@ -331,10 +332,16 @@ export default {
         })
     },
     // 增加积分接口，jsonp
-    addScore () {
-      var script = document.createElement("script")       
-      script.setAttribute("src",url)
-      script.setAttribute("type","text/javascript")             
+    addScore (activityId, UserId, score) {
+      window.callbackFn = (data) => {
+        let res = JSON.stringify(data)
+        if (res.status === 'fail') {
+          this.msgText = '游戏积分保存失败'
+          this.msgTip = true
+        }
+      }
+      var script = document.createElement('script')
+      script.src = `http://www.ecp-pm.com/gameInfo/savescore.dhtml?userId=${UserId}&score=${score}&activityId=${activityId}&call=callbackFn`
       document.body.appendChild(script)
     },
     // 关闭分数页

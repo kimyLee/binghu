@@ -331,12 +331,12 @@ export default {
         })
     },
     // 增加积分接口，jsonp
-    addScore () {
-      var script = document.createElement("script")       
-      script.setAttribute("src",url)
-      script.setAttribute("type","text/javascript")             
-      document.body.appendChild(script)
-    },
+    // addScore () {
+    //   var script = document.createElement("script")       
+    //   script.setAttribute("src",url)
+    //   script.setAttribute("type","text/javascript")             
+    //   document.body.appendChild(script)
+    // },
     // 关闭分数页
     closeShowPoint () {
       this.msgTip = false

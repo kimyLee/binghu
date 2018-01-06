@@ -4,8 +4,10 @@
     <!-- 计分器 -->
     <div class="score-panel">
       <div class="score-box">
-        <div class="box-item" style="border-bottom: 1px solid #ccc;">离靶心</div>
-        <div class="box-item num">{{score}}m</div>
+        <div class="box-item" style="border-bottom: 1px solid #ccc;">离靶心距离</div>
+        <div class="box-item num" style="line-height: 1.2;padding: 0 0.8rem">{{score}}
+          <div style="text-align: right">m</div>
+        </div>
       </div>
       <!-- 排行榜 -->
       <div class="ranking" @click="openRanking">排行榜</div>
@@ -332,9 +334,9 @@ export default {
     },
     // 增加积分接口，jsonp
     // addScore () {
-    //   var script = document.createElement("script")       
+    //   var script = document.createElement("script")
     //   script.setAttribute("src",url)
-    //   script.setAttribute("type","text/javascript")             
+    //   script.setAttribute("type","text/javascript")
     //   document.body.appendChild(script)
     // },
     // 关闭分数页

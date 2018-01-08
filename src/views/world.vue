@@ -130,11 +130,11 @@ import axios from 'axios'
 let fadeAudio = ''          // 淡出计时器
 let brushTimer = ''         // 刷子声音计时器
 let playing = false         // 刷子声音计时器
-let myAudio = {
-  cheer: '',
-  fail: '',
-  brush: ''
-}
+// let myAudio = {
+//   cheer: '',
+//   fail: '',
+//   brush: ''
+// }
 
 export default {
   name: 'world',
@@ -143,6 +143,7 @@ export default {
     optionBtn,
     myDialog
   },
+  props: ['myAudio'],
   data () {
     return {
       // 计算过程中的值缓存
@@ -274,7 +275,7 @@ export default {
     this.peopleImg2.src = this.$domain + '/static/images/people.jpg'
     this.meter.src = this.$domain + '/static/images/newMeter.jpg'
     this.finalAD.src = this.$domain + '/static/images/bg-ad.png'
-    this.createAudio()
+    // this.createAudio()
   },
 
   methods: {
@@ -374,16 +375,16 @@ export default {
     },
 
     // 创建音频
-    createAudio () {
-      for (let ele in myAudio) {
-        myAudio[ele] = document.createElement('AUDIO')
-        myAudio[ele].src = this.$domain + `/static/audio/${ele}.mp3`
-        myAudio[ele].preload = true
-        if (ele === 'brush') {
-          // myAudio[ele].loop = true
-        }
-      }
-    },
+    // createAudio () {
+    //   for (let ele in myAudio) {
+    //     myAudio[ele] = document.createElement('AUDIO')
+    //     myAudio[ele].src = this.$domain + `/static/audio/${ele}.mp3`
+    //     myAudio[ele].preload = true
+    //     if (ele === 'brush') {
+    //       // myAudio[ele].loop = true
+    //     }
+    //   }
+    // },
 
     // 音量淡出
     getSoundAndFadeAudio (sound, delayTime = 0) {
@@ -582,12 +583,14 @@ export default {
     },
 
     gameOver () {
+      let myAudio = this.myAudio
       this.status = 2
       this.cancelComputedScore()
       this.score = (Math.abs(this.beginMove - this.topestDistance - this.bgWalk) / this.ratio).toFixed(3)
       if (this.score >= 5) {
         this.success = false
         this.showResult = true
+        myAudio.brush.pause()
         myAudio.fail.currentTime = 0
         myAudio.fail && myAudio.fail.play()
         // this.getSoundAndFadeAudio(myAudio.fail)
@@ -617,6 +620,7 @@ export default {
 
     // 左右按钮点击事件
     handleDirect (dir) {
+      let myAudio = this.myAudio
       if (this.status !== 1) {
         return
       }
@@ -688,6 +692,7 @@ export default {
   },
   mounted () {
     this.$nextTick(() => {
+      let myAudio = this.myAudio
       this.Width = window.innerWidth                            // 屏幕宽度
       this.Height = Math.min(window.innerHeight, 667)           // 屏幕高度
       this.beginMove = 2 / 3 * this.Height                      // 开始滑动
@@ -946,7 +951,7 @@ export default {
       display: inline-block;
       text-align: center;
       color: #fff;
-      background-image:url('/binghutiaozhan/static/images/btn-bg.png');
+      background-image:url('/static/images/btn-bg.png');
       background-size: 100% 100%;
       width: 80%;
       margin-top: 1rem;

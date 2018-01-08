@@ -1,15 +1,46 @@
 <template>
   <div id="app">
-    <router-view/>
+    <router-view :my-audio = "myAudio"/>
   </div>
 </template>
 
 <script>
 import myDialog from '@/components/dialog'
+// let myAudio = {
+//   cheer: '',
+//   fail: '',
+//   brush: ''
+// }
 export default {
   name: 'app',
   components: {
     myDialog
+  },
+  data () {
+    return {
+      myAudio: {
+        cheer: '',
+        fail: '',
+        brush: ''
+      }
+    }
+  },
+  created () {
+    this.createAudio()
+  },
+  methods: {
+    // 创建音频
+    createAudio () {
+      let myAudio = this.myAudio
+      for (let ele in myAudio) {
+        myAudio[ele] = document.createElement('AUDIO')
+        myAudio[ele].src = this.$domain + `/static/audio/${ele}.mp3`
+        myAudio[ele].preload = true
+        // if (ele === 'brush') {
+        //   myAudio[ele].loop = true
+        // }
+      }
+    }
   }
 }
 </script>

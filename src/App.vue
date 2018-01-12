@@ -1,6 +1,9 @@
 <template>
   <div id="app">
     <router-view :my-audio = "myAudio"/>
+    <audio id="cheer" :src="'/static/audio/cheer.mp3' | autoPre" preload></audio>
+    <audio id="fail" :src="'/static/audio/fail.mp3' | autoPre" preload></audio>
+    <audio id="brush" :src="'/static/audio/brush.mp3' | autoPre" preload></audio>
   </div>
 </template>
 
@@ -25,22 +28,50 @@ export default {
       }
     }
   },
-  created () {
-    this.createAudio()
+  mounted () {
+    let that = this
+    document.addEventListener('DOMContentLoaded', () => {
+      that.audioAutoPlay = (target) => {
+        let successMusic = document.getElementById('cheer')
+        successMusic.play()
+        let failmusic = document.getElementById('fail')
+        failmusic.play()
+        setTimeout(() => {
+          successMusic.pause()
+          failmusic.pause()
+        }, 10)
+        document.addEventListener('WeixinJSBridgeReady', () => {
+          let successMusic = document.getElementById('cheer')
+          successMusic.play()
+          let failmusic = document.getElementById('fail')
+          failmusic.play()
+          setTimeout(() => {
+            successMusic.pause()
+            failmusic.pause()
+          }, 10)
+        }, false)
+      }
+      that.audioAutoPlay()
+    })
+    this.$nextTick(() => {
+      for (let ele in this.myAudio) {
+        this.myAudio[ele] = document.getElementById(ele)
+      }
+    })
   },
   methods: {
     // 创建音频
-    createAudio () {
-      let myAudio = this.myAudio
-      for (let ele in myAudio) {
-        myAudio[ele] = document.createElement('AUDIO')
-        myAudio[ele].src = this.$domain + `/static/audio/${ele}.mp3`
-        myAudio[ele].preload = true
-        // if (ele === 'brush') {
-        //   myAudio[ele].loop = true
-        // }
-      }
-    }
+    // createAudio () {
+    //   let myAudio = this.myAudio
+    //   for (let ele in myAudio) {
+    //     myAudio[ele] = document.createElement('AUDIO')
+    //     myAudio[ele].src = this.$domain + `/static/audio/${ele}.mp3`
+    //     myAudio[ele].preload = true
+    //     // if (ele === 'brush') {
+    //     //   myAudio[ele].loop = true
+    //     // }
+    //   }
+    // }
   }
 }
 </script>

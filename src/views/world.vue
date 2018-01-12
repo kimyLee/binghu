@@ -1,5 +1,6 @@
 <template>
-  <div class="container">
+  <div class="container" id="container">
+    <!-- <div style="opacity: 0" id="play-btn" @click="playMusic"></div> -->
     <div id="stage"></div>
     <!-- 计分器 -->
     <div class="score-panel">
@@ -46,7 +47,7 @@
           <li v-for="item in rankData" :key="item.Sort">
             <div class="ranking-section">
               <span class="rank">{{ item.Sort }}</span>
-              <img :src="item.UserLogo" class="avatar" />
+              <!-- <img :src="item.UserLogo" class="avatar" /> -->
               <span class="name">{{ item.UserName }}</span>
               <span class="score">{{ item.Integral }}</span>
           </div>
@@ -92,7 +93,7 @@
       </div>
     </my-dialog>
 
-    <my-dialog :colseable="false" :height="success ? 21 : 16" :open="showResult" @closeDialog="showResult=false" class="dialog results">
+    <my-dialog :colseable="false" :height="success ? 22 : 20" :open="showResult" @closeDialog="showResult=false" class="dialog results">
         <img slot="title" :src="'/static/images/victory.png' | autoPre" v-show="success"/>
         <img slot="title" :src="'/static/images/failed.png' | autoPre" v-show="!success"/>
         <div class="results-content" style="padding: 0; ">
@@ -130,11 +131,6 @@ import axios from 'axios'
 let fadeAudio = ''          // 淡出计时器
 let brushTimer = ''         // 刷子声音计时器
 let playing = false         // 刷子声音计时器
-// let myAudio = {
-//   cheer: '',
-//   fail: '',
-//   brush: ''
-// }
 
 export default {
   name: 'world',
@@ -229,6 +225,8 @@ export default {
         points: 0,
         hasGetPoint: false
       },
+      audioAutoPlay: '',
+      // playType: '',
       rankData: []                         // 排行榜数据
     }
   },
@@ -590,18 +588,27 @@ export default {
       if (this.score >= 5) {
         this.success = false
         this.showResult = true
-        myAudio.brush.pause()
-        myAudio.fail.currentTime = 0
-        myAudio.fail && myAudio.fail.play()
-        // this.getSoundAndFadeAudio(myAudio.fail)
+
+        myAudio.fail.src = ''
+        // this.playType = 'fail'
+        setTimeout(() => {
+          myAudio.brush.pause()
+          myAudio.fail.src = this.$domain + '/static/audio/fail.mp3'
+          myAudio.fail.play()
+        }, 100)
       } else {
         this.success = true
         this.showResult = true
-        myAudio.brush.pause()
-        myAudio.cheer.currentTime = 0
-        myAudio.cheer.volume = 1
-        myAudio.cheer && myAudio.cheer.play()
-        this.getSoundAndFadeAudio(myAudio.cheer, 2)
+
+        myAudio.cheer.src = ''
+        // this.playType = 'cheer'
+        setTimeout(() => {
+          myAudio.brush.pause()
+          myAudio.cheer.src = this.$domain + '/static/audio/cheer.mp3'
+          myAudio.cheer.volume = 1
+          myAudio.cheer.play()
+          this.getSoundAndFadeAudio(myAudio.cheer, 2)
+        }, 100)
       }
     },
     reStart () {
@@ -617,7 +624,31 @@ export default {
       this.run()
       this.computedScore()
     },
-
+    // 检查状态, 为了解决ios问题
+    // checkFinish () {
+    //   let myAudio = this.myAudio
+    //   if (this.status !== 2) {
+    //     return
+    //   }
+    //   this.myAudio.brush.pause()
+    //   if (this.success) {
+    //     myAudio.cheer.src = ''
+    //     setTimeout(() => {
+    //       myAudio.cheer.src = '/static/audio/cheer.mp3'
+    //       myAudio.cheer.volume = 1
+    //       myAudio.cheer.play()
+    //       this.getSoundAndFadeAudio(myAudio.cheer, 2)
+    //     }, 100)
+    //   } else {
+    //     myAudio.cheer.src = ''
+    //     setTimeout(() => {
+    //       myAudio.cheer.src = '/static/audio/cheer.mp3'
+    //       myAudio.cheer.volume = 1
+    //       myAudio.cheer.play()
+    //       this.getSoundAndFadeAudio(myAudio.cheer, 2)
+    //     }, 100)
+    //   }
+    // },
     // 左右按钮点击事件
     handleDirect (dir) {
       let myAudio = this.myAudio
@@ -721,11 +752,35 @@ export default {
       this.run()
       this.drawStatic()
       this.computedScore()
-      if (myAudio.cheer) {
-        myAudio.cheer.currentTime = 0
+      // let that = this
+      // this.playType = 'cheer'
+      myAudio.cheer.src = ''
+      setTimeout(() => {
+        myAudio.brush.pause()
+        myAudio.cheer.src = this.$domain + '/static/audio/cheer.mp3'
+        myAudio.cheer.volume = 1
         myAudio.cheer.play()
-      }
-      this.getSoundAndFadeAudio(myAudio.cheer, 2)
+        this.getSoundAndFadeAudio(myAudio.cheer, 2)
+      }, 20)
+      // document.addEventListener('DOMContentLoaded', () => {
+      //   that.audioAutoPlay = (target) => {
+      //     document.getElementById('cheer').play()
+      //     let failmusic = document.getElementById('fail')
+      //     failmusic.play()
+      //     setTimeout(() => {
+      //       failmusic.pause()
+      //     }, 10)
+      //     document.addEventListener('WeixinJSBridgeReady', () => {
+      //       document.getElementById('cheer').play()
+      //       let failmusic = document.getElementById('fail')
+      //       failmusic.play()
+      //       setTimeout(() => {
+      //         failmusic.pause()
+      //       }, 10)
+      //     }, false)
+      //   }
+      //   that.audioAutoPlay()
+      // })
     })
   },
 
@@ -951,7 +1006,7 @@ export default {
       display: inline-block;
       text-align: center;
       color: #fff;
-      background-image:url('/static/images/btn-bg.png');
+      background-image:url('/binghutiaozhan/static/images/btn-bg.png');
       background-size: 100% 100%;
       width: 80%;
       margin-top: 1rem;

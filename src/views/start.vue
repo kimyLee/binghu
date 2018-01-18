@@ -31,8 +31,8 @@
     <!-- 主页面 -->
     <div v-show="curProgress >= 100">
       <!-- logo 和 游戏规则 -->
-      <div class="logo">
-        <img :src="'/static/images/logo.png' | autoPre" />
+      <div class="logo" @click="$emit('showteach')">
+        <img :src="'/static/images/introBtn.png' | autoPre" />
       </div>
       <div class="game-rule" @click="seeRule=true">
         <img :src="'/static/images/rule.png' | autoPre" />
@@ -58,32 +58,34 @@
     </div>
 
     <!-- 游戏规则说明 -->
-    <my-dialog :open="seeRule" @closeDialog="seeRule = false" height="15">
+    <my-dialog :open="seeRule" @closeDialog="seeRule = false" height="10">
       <img slot="title" :src="'/static/images/game_rule.png' | autoPre" />
-      <div class="">
-        1. 力度条不断变化，点击确定力度<br>
-        2. 方向不断变化，点击确定方向<br>
-        3. 力度为零，游戏结束<br>
-        3. 冰壶接触滑道两边，游戏结束<br>
-        4. 成绩小于10m可抽取积分<br>
-        1. 力度条不断变化，点击确定力度<br>
-        2. 方向不断变化，点击确定方向<br>
-        3. 力度为零，游戏结束<br>
-        3. 冰壶接触滑道两边，游戏结束<br>
-        4. 成绩小于10m可抽取积分<br>
-        5. 玩家凭借积分可····
+      <div class="" style="font-size: 1.2rem;font-weight: bold">
+        <br>
+        每周参与冰壶挑战，赢取积分大奖。<br><br>
+        1、每日首次完成游戏挑战（单局离终点5m以内）可获得1-5积分随机奖励，积分奖励每日仅限1次<br><br>
+        2、每周全国游戏排名前1-10名可额外奖励300积分，11-50名奖励100积分，51-100名奖励50积分
       </div>
     </my-dialog>
     <!-- 查看游戏声明 -->
-    <my-dialog :open="seeProtocol" @closeDialog="seeProtocol = false" height="2">
+    <my-dialog :open="seeProtocol" @closeDialog="seeProtocol = false" height="15">
        <img slot="title" :src="'/static/images/shengming.png' | autoPre" />
-        <div class="">
-          1. 本次积分只在活动期间有效<br>
-          2. 本次积分只在活动期间有效<br>
-          3. 本次积分只在活动期间有效<br>
-          4. 活动方保留最终解释权
+        <div class=""  style="font-size: 1.2rem;font-weight: bold">
+        1、本活动内容仅用于零售户学习了解新红万产品特点，以便更好地为消费者介绍产品，不得用于商业用途。<br><br>
+        2、请勿复制、转发、分享或以其他任何方式传播此平台上的内容，对于违反本条款或法律法规而引起的一切责任，由用户负全部责任，与本平台无关；导致本平台受到损失的，本平台有权要求用户赔偿。<br><br>
+        3、所有活动参与者均须接受活动免责条款。<br><br>
+        此活动最终解释权归菲莫精英汇所有。
         </div>
     </my-dialog>
+    <!-- 请先阅读游戏声明 -->
+    <my-dialog :open="seeTip" @closeDialog="seeTip = false" height="2">
+       <span slot="title" >提示</span>
+        <div style="text-align: center;">
+          <b>请先阅读游戏声明</b>
+        </div>
+    </my-dialog>
+
+    
   </div>
 </template>
 
@@ -96,6 +98,7 @@ export default {
   },
   data () {
     return {
+      // teach: false,       // 玩法教程弹框
       loading: false,                     // 是否正在加载
       afterLoadNum: 0,                    // 后台加载是否完成
       circleDasharray: 0,
@@ -104,8 +107,17 @@ export default {
       notLoadImgCount: 0,
       imgToalCount: 0,
       hasCheck: false,                    // 是否勾选游戏协议
+      seeTip: false,                      // 是否打开警告弹窗
       seeRule: false,                     // 是否打开游戏规则弹窗
-      seeProtocol: false                  // 是否打开游戏声明弹窗
+      seeProtocol: false                 // 是否打开游戏声明弹窗
+      // swiper: '',                          // 滑动容器
+      // introItem: [
+      //   {img: '/static/images/intro1.jpg', text: '1、出发时力度直接影响冰壶滑行距离，劲太大可能会与终点擦肩而过哦'},
+      //   {img: '/static/images/intro2.jpg', text: '2、方向选的准更容易获得高分，方向选定点击滑行即可开始调整'},
+      //   {img: '/static/images/intro3.jpg', text: '3、扫冰可让冰面更光滑，增加冰壶滑行距离'},
+      //   {img: '/static/images/intro4.jpg', text: '4、通过左右扫冰会让冰壶向对应方向滑动，调整冰壶保持最佳路线是成功的关键'},
+      //   {img: '/static/images/intro5.jpg', text: '5、冰壶一旦碰壁本局游戏结束，再次挑战争取更好成绩'}
+      // ]
     }
   },
   created () {
@@ -138,6 +150,13 @@ export default {
     'notLoadImgCount' () {
       this.progress = 100 - Math.round(this.notLoadImgCount / this.imgToalCount * 100)
     }
+    // 'teach' () {
+    //   this.$nextTick(() => {
+    //     if (!this.swiper) {
+    //       this.swiper = new Swiper('#swiperContainer')
+    //     }
+    //   })
+    // }
   },
   methods: {
     // 顺滑过渡 progress ，会通过计算属性模拟transition到达
@@ -165,7 +184,8 @@ export default {
 
     startGame () {
       if (!this.hasCheck) {
-        alert('请先阅读游戏声明')
+        this.seeTip = true
+        // alert('请先阅读游戏声明')
         return
       }
       this.$router.push({name: 'word'})
@@ -173,11 +193,17 @@ export default {
     // 预加载
     preLoad () {
       let imgs = [
-        this.$domain + '/static/images/logo.png',
+        // this.$domain + '/static/images/logo.png',
         this.$domain + '/static/images/rule.png',
         this.$domain + '/static/images/homeBg.png',
         this.$domain + '/static/images/game_rule.png',
         this.$domain + '/static/images/shengming.png',
+        this.$domain + '/static/images/intro1.jpg',
+        this.$domain + '/static/images/intro2.jpg',
+        this.$domain + '/static/images/intro3.jpg',
+        this.$domain + '/static/images/intro4.jpg',
+        this.$domain + '/static/images/intro5.jpg',
+        this.$domain + '/static/images/introBtn.png',
         this.$domain + '/static/images/btn.png'
       ]
       this.imgToalCount = imgs.length
@@ -199,13 +225,18 @@ export default {
         this.$domain + '/static/images/brush.png',
         this.$domain + '/static/images/people.jpg',
         this.$domain + '/static/images/people2.jpg',
+        this.$domain + '/static/images/bg-ad.png',
         this.$domain + '/static/images/follower.png',
-        this.$domain + '/static/images/meter.jpg',
+        this.$domain + '/static/images/newMeter.jpg',
         this.$domain + '/static/images/btn-bg.png',
         this.$domain + '/static/images/moreSmooth.png',
         this.$domain + '/static/images/rank.png',
         this.$domain + '/static/images/victory.png',
         this.$domain + '/static/images/failed.png',
+        this.$domain + '/static/images/game-intro.png',
+        this.$domain + '/static/images/again.png',
+        this.$domain + '/static/images/outcycle.png',
+        this.$domain + '/static/images/power-btn.png',
         this.$domain + '/static/images/finger.png'
         // this.$domain + '/static/images/test.jpg'
       ]
@@ -229,6 +260,77 @@ export default {
   .start-page {
     background: #fff;
     position: relative;
+
+.imgHover {
+    width: 70%;
+    text-align: center;
+    max-height: 25.5rem;
+    left: 15%;
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+    .slide-img {
+      width: 100%;
+       display: -webkit-box;
+      display: -ms-flexbox;
+      display: -webkit-flex;
+       display: flex;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
+      -webkit-justify-content: center;
+      justify-content: center;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      -webkit-align-items: center;
+      align-items: center;
+    }
+}
+.text-field {
+  width: 85%;
+  left: 10%;
+  margin-top: 1.6rem;
+  box-sizing: border-box;
+  position: relative;
+  // text-align: center;
+  .red-slogn {
+      background: #d84247;
+      position: absolute;
+      left: 0;
+      margin-left: -2rem;
+      width: 0.8rem;
+      height: 1.6rem;
+      display: inline-block;
+      transform: skew(-10deg);
+    }
+    p {
+      text-align: left;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    
+  
+}
+.dots-panel {
+      display: inline-block;
+      // margin-left: 0rem;
+      .dots {
+        display: inline-block;
+        margin-right: 0.7rem;
+        width: 0.6rem;
+        height: 0.6rem;
+        background: #d84247;
+        border-radius: 50%;
+        // box-shadow: 0px 0px 2px 2px #bbb;
+        border: 2px solid #e5e5e5;
+        &.active {
+          width: 0.8rem;
+          height: 0.8rem;
+          position: relative;
+          top: 0.1rem;
+        }
+      }
+    }
+
     .loading {
       position: fixed;
       background: #fff;
@@ -255,9 +357,9 @@ export default {
     }
     .logo {
       position: absolute;
-      top: 1.8rem;
+      top: 1.5rem;
       left: 2.7rem;
-      width: 7.5rem;
+      width: 9.5rem;
       z-index: 10;
       img {
         width: 100%;

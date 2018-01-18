@@ -63,6 +63,7 @@ export default {
       }
     }
     .option-btn-text {
+      width: 100%;
       color: #fff;
       position: absolute;
       display: inline-block;

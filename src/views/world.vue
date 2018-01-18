@@ -80,8 +80,8 @@
     <my-dialog height="5" :open="showTotalPoints" @closeDialog="closeShowPoint" class="dialog points" style="text-align: left;">
       <img slot="title" :src="'/static/images/victory.png' | autoPre"/>
       <div class="results-content" style="padding: 0;">
-        <p class="tip">总积分达到了<span class="num">{{baseinfo.points}}</span>分</p>
-        <p class="tip">每天只能有一次获得积分的机会,请明天再来吧</p>
+        <!-- <p class="tip">总积分达到了<span class="num">{{baseinfo.points}}</span>分</p> -->
+        <p class="tip">每日积分奖励仅限领取一次，继续挑战冲击排行榜赢取每周积分大奖</p>
       </div>
     </my-dialog>
 
@@ -93,7 +93,7 @@
       </div>
     </my-dialog>
 
-    <my-dialog :colseable="false" :height="success ? 22 : 20" :open="showResult" @closeDialog="showResult=false" class="dialog results">
+    <my-dialog :colseable="false" :height="success ? 24 : 24" :open="showResult" @closeDialog="showResult=false" class="dialog results">
         <img slot="title" :src="'/static/images/victory.png' | autoPre" v-show="success"/>
         <img slot="title" :src="'/static/images/failed.png' | autoPre" v-show="!success"/>
         <div class="results-content" style="padding: 0; ">
@@ -111,7 +111,10 @@
             <span class="results-btn" v-show="success" @click="handleBtnClick('points')">
               已了解，立刻抽积分
             </span>
-            <span class="results-btn" @click="handleBtnClick('continue')">再次挑战</span>
+            <span v-show="success" class="results-btn" @click="handleBtnClick('continue')" >再次挑战</span>
+            <img v-show="!success" class="results-img-btn" :src="'/static/images/again.png' | autoPre" @click="handleBtnClick('continue')">
+            <img  v-show="!success" class="results-img-btn" :src="'/static/images/game-intro.png' | autoPre" @click="$emit('showteach')">
+            <!-- <span class="results-btn" v-show="!success" @click="$emit('showteach')">玩法教程</span> -->
           </div>
         </div>
       </my-dialog>
@@ -1013,6 +1016,12 @@ export default {
       height: 4rem;
       line-height: 4rem;
       padding: 0;
+    }
+    .results-img-btn {
+      display: inline-block;
+      width: 80%;
+      margin-top: 1rem;
+      height: 4rem;
     }
 
     .attrs {

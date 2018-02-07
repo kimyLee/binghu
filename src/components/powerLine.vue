@@ -22,6 +22,13 @@
       <circle :cx="clientWidth * 0.2" :cy="clientWidth * 0.378" :r="clientWidth * 0.2 - 15" stroke-width="15" stroke="#fcfcfc" fill="none"></circle>
       <circle class="inner-svg" :cx="clientWidth * 0.2" :cy="clientWidth * 0.378" :r="clientWidth * 0.2 - 15" stroke-width="15" stroke="#fed744" fill="none"  :stroke-dasharray="circleDasharray"></circle>
     </svg>
+    <!-- 0 和 10 的指示 -->
+      <div class="num-0">
+        <span>0</span>
+      </div>
+      <div class="num-0 num-10">
+        <span>10</span>
+      </div>
     <!-- 力度指示箭头 -->
     <div class="power-arrow" :style="{transform: `rotate(${this.progress / 100 * 200}deg) translateY(50%)`, '-webkit-transform': `rotate(${this.progress / 100 * 200}deg) translateY(50%)`}">
       <img  :src="'/static/images/power-btn.png' | autoPre" />
@@ -284,13 +291,38 @@ export default {
     left: 50%;
     transform: translateX(-50%);
     width: 40%;
-    // padding-left: 2%;
-    // padding-right: 2%;
-    // box-sizing: border-box;
+   
     height: 0;
     padding-bottom: 40%;
     bottom: 0;
-    // overflow: hidden;
+    .num-0 {
+      position: absolute;
+      width: 1.2rem;
+      height: 1.4rem;
+      margin-left: 0.6rem;
+      bottom: 0;
+      z-index: 99;
+      color: #d35155;
+      text-align: center;
+      line-height: 1.2rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+      background: rgba(0, 0, 0, .15);
+      span {
+        display: inline-block;
+        transform: rotate(90deg);
+        margin-top: 1px;
+        margin-left: -1px;
+      }
+    }
+    .num-10 {
+      right: 0;
+      margin-right: 0.6rem;
+      span{
+        margin-top: 0;
+        margin-left: -1px;
+      }
+    }
     .power-arrow {
       position: absolute;
       bottom: 0;

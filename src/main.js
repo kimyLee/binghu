@@ -3,6 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+console.log('version1.0.0')
 
 /* eslint-disable */
 if (!Date.now)

@@ -108,12 +108,12 @@
             <li>焦油含量降至10毫克</li>
           </ul>
           <div style="text-align: center;">
-            <span class="results-btn" v-show="success" @click="handleBtnClick('points')">
+            <span class="results-btn" v-show="success" @click.prevent="handleBtnClick('points')">
               已了解，立刻抽积分
             </span>
-            <span v-show="success" class="results-btn" @click="handleBtnClick('continue')" >再次挑战</span>
-            <img v-show="!success" class="results-img-btn" :src="'/static/images/again.png' | autoPre" @click="handleBtnClick('continue')">
-            <img  v-show="!success" class="results-img-btn" :src="'/static/images/game-intro.png' | autoPre" @click="$emit('showteach')">
+            <span v-show="success" class="results-btn" @click.prevent="handleBtnClick('continue')" >再次挑战</span>
+            <img v-show="!success" class="results-img-btn" :src="'/static/images/again.png' | autoPre" @click.prevent="handleBtnClick('continue')">
+            <img  v-show="!success" class="results-img-btn" :src="'/static/images/game-intro.png' | autoPre" @click.prevent="$emit('showteach')">
             <!-- <span class="results-btn" v-show="!success" @click="$emit('showteach')">玩法教程</span> -->
           </div>
         </div>
@@ -328,7 +328,7 @@ export default {
               this.points = data.GetedIntegral
               this.showResult = false
               this.showPoints = true
-              this.addScore(data.activityId, data.UserId, this.points)
+              this.addScore(data.activityid, data.UserId, this.points)
             }
           } else {
             return Promise.reject(res)
@@ -705,6 +705,7 @@ export default {
     // 打开排行榜
     openRanking () {
       if (this.status !== 1) {
+        this.fetchData()
         this.showRanking = true
       }
     },

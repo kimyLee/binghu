@@ -68,7 +68,7 @@
       </div>
     </my-dialog>
     <!-- 查看游戏声明 -->
-    <my-dialog :open="seeProtocol" @closeDialog="seeProtocol = false" height="15">
+    <my-dialog :open="seeProtocol" @closeDialog="seeProtocol = false" height="22">
        <img slot="title" :src="'/static/images/shengming.png' | autoPre" />
         <div class=""  style="font-size: 1.2rem;font-weight: bold">
         1、本活动内容仅用于零售户学习了解新红万产品特点，以便更好地为消费者介绍产品，不得用于商业用途。<br><br>

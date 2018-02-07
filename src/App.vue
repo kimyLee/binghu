@@ -90,7 +90,7 @@ export default {
           setTimeout(() => {
             successMusic.pause()
             failmusic.pause()
-          }, 10)
+          }, 1)
         }, false)
       }
       that.audioAutoPlay()

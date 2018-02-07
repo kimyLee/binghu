@@ -37,7 +37,7 @@
       <img slot="title" :src="'/static/images/rank.png' | autoPre" />
       <div class="ranking-section rank-head">
         <div class="name">用户昵称</div>
-        <div class="score" style="text-align: right">分数</div>
+        <div class="score" style="text-align: right">距离靶心（米）</div>
       </div>
       <div
         ref="wrapper"
@@ -306,6 +306,12 @@ export default {
       console.log('fetching data...')
     },
     // 上传成绩距离 todo: 如果不能获得积分的原因有两个，1 距离不到，2 今天已获得，需要返回失败类型
+    StoreScore (distance) {
+      let data = Qs.stringify({Distance: distance})
+      axios.post('/Index/SaveScore', data, {headers: { 'Content-Type': 'application/x-www-form-urlencoded' }})
+      .then((result) => {})
+      .catch((err) => { console.log(err) })
+    },
     pushScore (distance) {
       let data = Qs.stringify({Distance: distance})
       axios.post('/Index/SaveUserInfo', data, {headers: { 'Content-Type': 'application/x-www-form-urlencoded' }})
@@ -600,6 +606,9 @@ export default {
           myAudio.fail.play()
         }, 100)
       } else {
+        if ((this.score - 0) === 0) {
+          this.score = 0.001
+        }
         this.success = true
         this.showResult = true
 
@@ -613,6 +622,8 @@ export default {
           this.getSoundAndFadeAudio(myAudio.cheer, 2)
         }, 100)
       }
+      // 自动保存分数
+      this.StoreScore(this.score)
     },
     reStart () {
       this.cancelComputedScore()

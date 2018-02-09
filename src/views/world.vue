@@ -122,6 +122,7 @@
 </template>
 
 <script>
+import md5 from 'md5'
 import Qs from 'qs'
 import powerLine from '@/components/powerLine'
 import optionBtn from '@/components/optionBtn'
@@ -145,6 +146,8 @@ export default {
   props: ['myAudio'],
   data () {
     return {
+      globalId: '',
+      randomCode: '',
       // 计算过程中的值缓存
       numX: 0,                // 画跑道的起始横坐标
       lineHeight: 0,          // 画跑道的间隔距离
@@ -259,6 +262,7 @@ export default {
   // },
 
   created () {
+    // console.log(md5('WBLxinchunADDCFCIE'))
     this.binghu = new BingHu()
     this.brush = new Brush()
     this.image = new Image()
@@ -289,6 +293,7 @@ export default {
           let res = result.data
           if (res.Code === 1) {
             let data = res.Data
+            this.globalId = data.EliteId
             this.baseinfo = {
               points: data.GetedIntegral || 0,
               hasGetPoint: !!data.UserStatue
@@ -305,51 +310,89 @@ export default {
         })
       console.log('fetching data...')
     },
-    // 上传成绩距离 todo: 如果不能获得积分的原因有两个，1 距离不到，2 今天已获得，需要返回失败类型
-    StoreScore (distance) {
-      let data = Qs.stringify({Distance: distance})
-      axios.post('/Index/SaveScore', data, {headers: { 'Content-Type': 'application/x-www-form-urlencoded' }})
-      .then((result) => {})
-      .catch((err) => { console.log(err) })
-    },
-    pushScore (distance) {
-      let data = Qs.stringify({Distance: distance})
-      axios.post('/Index/SaveUserInfo', data, {headers: { 'Content-Type': 'application/x-www-form-urlencoded' }})
+    // 保存分数前先获取随机数密文传输
+    getKeys (distance) {
+      return axios.post('/index/getcode')
         .then((result) => {
           let res = result.data
-          // let res = JSON.stringify(result)
-          if (res.Code === 1) {
-            let data = res.Data
-            let success = data.Statue
-            if (!success) {
-              return Promise.reject(new Error({msg: data.Msg}))
-            }
-            // 如果今天已获取积分
-            if (this.baseinfo.hasGetPoint || !data.IsGetIntegral) {
-              this.points = 0
-              this.baseinfo.points = data.GetedIntegral || 0
-              this.showTotalPoints = true
-            } else {
-              // 能获得积分，打开获得积分页GetedIntegral
-              this.points = data.GetedIntegral
-              this.showResult = false
-              this.showPoints = true
-              this.addScore(data.activityid, data.UserId, this.points)
-            }
-          } else {
-            return Promise.reject(res)
-          }
+          // console.log(result)
+          this.randomCode = md5('WBLxinchun' + res + distance)
         })
         .catch((error) => {
-          // console.log(error)
-          // this.showTotalPoints = true
+          console.log(error)
+        })
+      // console.log(md5('message'))
+    },
+    // 上传成绩距离 todo: 如果不能获得积分的原因有两个，1 距离不到，2 今天已获得，需要返回失败类型
+    StoreScore (distance) {
+      let fn = () => {
+        let data = Qs.stringify({Distance: distance, sign: this.randomCode})
+        axios.post('/Index/SaveScore', data, {headers: { 'Content-Type': 'application/x-www-form-urlencoded' }})
+        .then((result) => {
+          let res = result.data
+          if (res.Code === 2) {
+            alert(res.msg)
+          }
+        })
+        .catch((err) => { console.log(err) })
+      }
+      this.getKeys(distance)
+        .then(() => {
+          fn()
+        })
+        .catch((error) => {
+          console.log(error)
+          fn()
+        })
+    },
+    pushScore (distance) {
+      let fn = () => {
+        let data = Qs.stringify({Distance: distance, sign: this.randomCode})
+        axios.post('/Index/SaveUserInfo', data, {headers: { 'Content-Type': 'application/x-www-form-urlencoded' }})
+          .then((result) => {
+            let res = result.data
+            // let res = JSON.stringify(result)
+            if (res.Code === 1) {
+              let data = res.Data
+              let success = data.Statue
+              if (!success) {
+                return Promise.reject(new Error({msg: data.Msg}))
+              }
+              // 如果今天已获取积分
+              if (this.baseinfo.hasGetPoint || !data.IsGetIntegral) {
+                this.points = 0
+                this.baseinfo.points = data.GetedIntegral || 0
+                this.showTotalPoints = true
+              } else {
+                // 能获得积分，打开获得积分页GetedIntegral
+                this.points = data.GetedIntegral
+                this.showResult = false
+                this.showPoints = true
+                this.addScore(data.activityid, data.UserId, this.points)
+              }
+            } else {
+              return Promise.reject(res)
+            }
+          })
+          .catch((error) => {
+            // console.log(error)
+            // this.showTotalPoints = true
 
-          // this.showResult = false
-          // this.showPoints = true
+            // this.showResult = false
+            // this.showPoints = true
 
-          this.msgText = error.msg || '未知错误'
-          this.msgTip = true
-          this.reStart()
+            this.msgText = error.msg || '未知错误'
+            this.msgTip = true
+            this.reStart()
+          })
+      }
+      this.getKeys(distance)
+        .then(() => {
+          fn()
+        })
+        .catch((error) => {
+          console.log(error)
+          fn()
         })
     },
     // 增加积分接口，jsonp
@@ -594,6 +637,10 @@ export default {
       this.status = 2
       this.cancelComputedScore()
       this.score = (Math.abs(this.beginMove - this.topestDistance - this.bgWalk) / this.ratio).toFixed(3)
+      // 埋点
+      if (window.zhuge) {
+        window.zhuge.track('用户' + this.globalId + '完成了游戏')
+      }
       if (this.score >= 5) {
         this.success = false
         this.showResult = true

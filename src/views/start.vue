@@ -58,7 +58,7 @@
     </div>
 
     <!-- 游戏规则说明 -->
-    <my-dialog :open="seeRule" @closeDialog="seeRule = false" height="10">
+    <my-dialog :open="seeRule" @closeDialog="seeRule = false" height="15">
       <img slot="title" :src="'/static/images/game_rule.png' | autoPre" />
       <div class="" style="font-size: 1.2rem;font-weight: bold">
         <br>
@@ -90,6 +90,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import myDialog from '@/components/dialog'
 export default {
   name: 'app',
@@ -98,6 +99,7 @@ export default {
   },
   data () {
     return {
+      globalId: '',
       // teach: false,       // 玩法教程弹框
       loading: false,                     // 是否正在加载
       afterLoadNum: 0,                    // 后台加载是否完成
@@ -128,6 +130,7 @@ export default {
   mounted () {
     this.$nextTick(() => {
       this.transionTarget()
+      this.fetchData()
     })
   },
 
@@ -159,6 +162,29 @@ export default {
     // }
   },
   methods: {
+    // 获取用户信息和排行榜数据
+    fetchData () {
+      axios.post('/Index/SystemStatue')
+        .then((result) => {
+          let res = result.data
+          if (res.Code === 1) {
+            let data = res.Data
+            this.globalId = data.EliteId
+            if (window.zhuge) {
+              window.zhuge.identify(this.globalId)
+              window.zhuge.track('用户' + this.globalId + '进入了首页')
+            }
+          } else {
+            return Promise.reject(res)
+          }
+        })
+        .catch((error) => {
+          console.log(error)
+          // this.msgText = error.msg || '未知错误'
+          // this.msgTip = true
+        })
+      console.log('fetching data...')
+    },
     // 顺滑过渡 progress ，会通过计算属性模拟transition到达
     transionTarget () {
       if (this.curProgress >= 100) {
@@ -189,6 +215,9 @@ export default {
         return
       }
       this.$router.push({name: 'word'})
+      if (window.zhuge) {
+        window.zhuge.track('用户' + this.globalId + '点击了开始游戏')
+      }
     },
     // 预加载
     preLoad () {
